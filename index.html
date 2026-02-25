@@ -1,0 +1,3759 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试工具集</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 2px 0 20px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s;
+        }
+
+        .sidebar h2 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            margin-bottom: 10px;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 12px 15px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+
+        .nav-link:hover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            font-size: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                z-index: 1000;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: block;
+            }
+        }
+
+        .tool-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .tool-title {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .result-area {
+            margin-top: 20px;
+        }
+
+        .result-box {
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 100px;
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            word-break: break-all;
+            position: relative;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            margin-top: 10px;
+        }
+
+        .copy-btn:hover {
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+            min-height: 120px;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.4);
+        }
+
+        .error-text {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        input[type="text"], input[type="datetime-local"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="datetime-local"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-item input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            color: #667eea;
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <!-- 移动端菜单按钮 -->
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    <!-- 左侧导航栏 -->
+    <div class="sidebar" id="sidebar">
+        <h2>🔧 工具导航</h2>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="#random-string" class="nav-link active" onclick="scrollToTool('random-string', event)">
+                    🎲 随机字符串生成器
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#json-formatter" class="nav-link" onclick="scrollToTool('json-formatter', event)">
+                    📝 JSON格式化工具
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#base64" class="nav-link" onclick="scrollToTool('base64', event)">
+                    🔐 Base64编解码
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#timestamp" class="nav-link" onclick="scrollToTool('timestamp', event)">
+                    ⏰ 时间戳转换
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#url-codec" class="nav-link" onclick="scrollToTool('url-codec', event)">
+                    🔗 URL编解码
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#hash" class="nav-link" onclick="scrollToTool('hash', event)">
+                    🔒 哈希加密
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#pairwise" class="nav-link" onclick="scrollToTool('pairwise', event)">
+                    🔀 Pairwise两两组合
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#time-diff" class="nav-link" onclick="scrollToTool('time-diff', event)">
+                    ⏱️ 时间差计算器
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#file-generator" class="nav-link" onclick="scrollToTool('file-generator', event)">
+                    📄 测试文件生成器
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#regex-tester" class="nav-link" onclick="scrollToTool('regex-tester', event)">
+                    🔍 正则表达式测试
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#char-counter" class="nav-link" onclick="scrollToTool('char-counter', event)">
+                    📊 字符数量统计
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <div class="container">
+            <h1>🔧 测试工具集</h1>
+
+            <!-- 随机字符生成器 -->
+            <div class="tool-card" id="random-string">
+                <h2 class="tool-title">🎲 随机字符生成器</h2>
+            
+            <div class="form-group">
+                <label for="length">字符长度：</label>
+                <input type="number" id="length" min="1" max="10000" value="16" placeholder="请输入字符长度">
+            </div>
+
+            <div class="form-group">
+                <label>字符类型：</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="uppercase" checked>
+                        <label for="uppercase">大写字母 (A-Z)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="lowercase" checked>
+                        <label for="lowercase">小写字母 (a-z)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="numbers" checked>
+                        <label for="numbers">数字 (0-9)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="symbols">
+                        <label for="symbols">特殊字符 (!@#$%^&*)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="chinese">
+                        <label for="chinese">中文字符 (常用汉字)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button class="btn" onclick="generateRandomString()">生成随机字符</button>
+            </div>
+
+            <div class="result-area">
+                <label>生成结果：</label>
+                <div class="result-box" id="result">点击上方按钮生成随机字符</div>
+                <button class="btn copy-btn" onclick="copyResult('result')">📋 复制到剪贴板</button>
+            </div>
+        </div>
+
+        <!-- JSON格式化工具 -->
+        <div class="tool-card" id="json-formatter">
+            <h2 class="tool-title">📝 JSON格式化</h2>
+            
+            <div class="form-group">
+                <label for="jsonInput">输入JSON：</label>
+                <textarea id="jsonInput" placeholder="在此粘贴或输入JSON数据..."></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="formatJSON()">格式化</button>
+                <button class="btn btn-secondary" onclick="compressJSON()">压缩</button>
+                <button class="btn btn-secondary" onclick="clearJSON()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>格式化结果：</label>
+                <textarea id="jsonOutput" readonly placeholder="格式化后的JSON将显示在这里..."></textarea>
+                <div id="jsonError" class="error-text"></div>
+                <button class="btn copy-btn" onclick="copyTextarea('jsonOutput')">📋 复制结果</button>
+            </div>
+        </div>
+
+        <!-- Base64编解码 -->
+        <div class="tool-card" id="base64">
+            <h2 class="tool-title">🔐 Base64编解码</h2>
+            
+            <div class="form-group">
+                <label for="base64Input">输入文本：</label>
+                <textarea id="base64Input" placeholder="在此输入要编码或解码的文本..."></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="encodeBase64()">编码</button>
+                <button class="btn btn-secondary" onclick="decodeBase64()">解码</button>
+                <button class="btn btn-secondary" onclick="clearBase64()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>结果：</label>
+                <textarea id="base64Output" readonly placeholder="编码或解码结果将显示在这里..."></textarea>
+                <div id="base64Error" class="error-text"></div>
+                <button class="btn copy-btn" onclick="copyTextarea('base64Output')">📋 复制结果</button>
+            </div>
+        </div>
+
+        <!-- 时间戳转换 -->
+        <div class="tool-card" id="timestamp">
+            <h2 class="tool-title">⏰ 时间戳转换</h2>
+            
+            <div class="form-group">
+                <label for="timestampInput">时间戳（毫秒）：</label>
+                <input type="text" id="timestampInput" placeholder="输入时间戳，留空则使用当前时间">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="convertTimestamp()">转换为日期</button>
+                <button class="btn btn-secondary" onclick="getCurrentTimestamp()">获取当前时间戳</button>
+            </div>
+
+            <div class="result-area">
+                <label>转换结果：</label>
+                <div class="result-box" id="timestampResult">点击按钮进行转换</div>
+                <button class="btn copy-btn" onclick="copyResult('timestampResult')">📋 复制结果</button>
+            </div>
+
+            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e0e0e0;">
+
+            <div class="form-group">
+                <label for="dateInput">日期时间：</label>
+                <input type="datetime-local" id="dateInput">
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="convertDateToTimestamp()">转换为时间戳</button>
+            </div>
+
+            <div class="result-area">
+                <label>时间戳结果：</label>
+                <div class="result-box" id="dateResult">选择日期后点击转换</div>
+                <button class="btn copy-btn" onclick="copyResult('dateResult')">📋 复制时间戳</button>
+            </div>
+        </div>
+
+        <!-- URL编解码 -->
+        <div class="tool-card" id="url-codec">
+            <h2 class="tool-title">🔗 URL编解码</h2>
+            
+            <div class="form-group">
+                <label for="urlInput">输入URL或文本：</label>
+                <textarea id="urlInput" placeholder="在此输入要编码或解码的URL..."></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="encodeURL()">编码</button>
+                <button class="btn btn-secondary" onclick="decodeURL()">解码</button>
+                <button class="btn btn-secondary" onclick="clearURL()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>结果：</label>
+                <textarea id="urlOutput" readonly placeholder="编码或解码结果将显示在这里..."></textarea>
+                <div id="urlError" class="error-text"></div>
+                <button class="btn copy-btn" onclick="copyTextarea('urlOutput')">📋 复制结果</button>
+            </div>
+        </div>
+
+        <!-- MD5/SHA加密 -->
+        <div class="tool-card" id="hash">
+            <h2 class="tool-title">🔒 哈希加密 (MD5/SHA)</h2>
+            
+            <div class="form-group">
+                <label for="hashInput">输入文本：</label>
+                <textarea id="hashInput" placeholder="在此输入要加密的文本..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>加密算法：</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="md5" name="hashAlgo" value="md5" checked>
+                        <label for="md5">MD5</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="sha1" name="hashAlgo" value="sha1">
+                        <label for="sha1">SHA-1</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="sha256" name="hashAlgo" value="sha256">
+                        <label for="sha256">SHA-256</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="generateHash()">生成哈希值</button>
+                <button class="btn btn-secondary" onclick="clearHash()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>哈希值：</label>
+                <div class="result-box" id="hashOutput">输入文本后点击生成</div>
+                <button class="btn copy-btn" onclick="copyResult('hashOutput')">📋 复制哈希值</button>
+            </div>
+        </div>
+
+        <!-- 成对组合测试工具 -->
+        <div class="tool-card" id="pairwise">
+            <h2 class="tool-title">🔀 成对组合测试 (Pairwise Testing)</h2>
+            
+            <div class="form-group">
+                <label>测试参数配置：</label>
+                <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
+                    格式：参数名: 值1, 值2, 值3（每行一个参数）
+                </p>
+                <textarea id="pairwiseInput" placeholder="示例：&#10;浏览器: Chrome, Firefox, Safari, Edge&#10;操作系统: Windows, macOS, Linux&#10;分辨率: 1920x1080, 1366x768, 2560x1440&#10;语言: 中文, 英文, 日文" style="min-height: 150px;"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="pairwiseOrder">组合强度：</label>
+                <div class="radio-group">
+                    <div class="radio-item">
+                        <input type="radio" id="pairwise2" name="pairwiseOrder" value="2" checked>
+                        <label for="pairwise2">两两组合 (Pairwise)</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="pairwise3" name="pairwiseOrder" value="3">
+                        <label for="pairwise3">三因子组合 (3-way)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="generatePairwise()">生成测试用例</button>
+                <button class="btn btn-secondary" onclick="loadPairwiseExample()">加载示例</button>
+                <button class="btn btn-secondary" onclick="clearPairwise()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>生成的测试用例：</label>
+                <div id="pairwiseStats" style="background: #f0f8ff; padding: 10px; border-radius: 5px; margin-bottom: 10px; display: none;">
+                    <strong>统计信息：</strong>
+                    <span id="pairwiseStatsText"></span>
+                </div>
+                <textarea id="pairwiseOutput" readonly placeholder="点击生成按钮后，测试用例将显示在这里..." style="min-height: 200px;"></textarea>
+                <div id="pairwiseError" class="error-text"></div>
+                <button class="btn copy-btn" onclick="copyTextarea('pairwiseOutput')">📋 复制用例</button>
+                <button class="btn copy-btn" style="background: #17a2b8; margin-left: 10px;" onclick="exportPairwiseCSV()">📥 导出CSV</button>
+            </div>
+        </div>
+
+        <!-- 时间差计算工具 -->
+        <div class="tool-card" id="time-diff">
+            <h2 class="tool-title">⏱️ 时间差计算</h2>
+            
+            <div class="form-group">
+                <label for="startTime">开始时间：</label>
+                <input type="text" id="startTime" placeholder="格式：YYYY-MM-DD HH:mm:ss 或 YYYY-MM-DD" value="">
+                <button class="btn" style="margin-top: 10px; padding: 8px 15px; font-size: 14px;" onclick="setCurrentTime('startTime')">使用当前时间</button>
+            </div>
+
+            <div class="form-group">
+                <label for="endTime">结束时间：</label>
+                <input type="text" id="endTime" placeholder="格式：YYYY-MM-DD HH:mm:ss 或 YYYY-MM-DD" value="">
+                <button class="btn" style="margin-top: 10px; padding: 8px 15px; font-size: 14px;" onclick="setCurrentTime('endTime')">使用当前时间</button>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="calculateTimeDifference()">计算时间差</button>
+                <button class="btn btn-secondary" onclick="loadTimeDiffExample()">加载示例</button>
+                <button class="btn btn-secondary" onclick="clearTimeDiff()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>计算结果：</label>
+                <div class="result-box" id="timeDiffResult" style="min-height: 150px;">
+                    输入两个时间后点击计算
+                </div>
+                <div id="timeDiffError" class="error-text"></div>
+                <button class="btn copy-btn" onclick="copyResult('timeDiffResult')">📋 复制结果</button>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; font-size: 14px; color: #666;">
+                <strong>💡 支持的时间格式：</strong>
+                <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                    <li>YYYY-MM-DD HH:mm:ss （如：2024-10-16 14:37:49）</li>
+                    <li>YYYY-MM-DD （如：2024-10-16）</li>
+                    <li>YYYY/MM/DD HH:mm:ss</li>
+                    <li>YYYY/MM/DD</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 测试文件生成器 -->
+        <div class="tool-card" id="file-generator">
+            <h2 class="tool-title">📄 测试文件生成器</h2>
+            
+            <div class="form-group">
+                <label for="fileFormat">文件格式：</label>
+                <select id="fileFormat" onchange="updateFileFormatUI()" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                    <optgroup label="📝 文本文件">
+                        <option value="txt">TXT - 纯文本文件</option>
+                        <option value="csv">CSV - 逗号分隔值文件</option>
+                        <option value="json">JSON - 数据交换格式</option>
+                        <option value="xml">XML - 标记语言文件</option>
+                        <option value="html">HTML - 网页文件</option>
+                        <option value="log">LOG - 日志文件</option>
+                    </optgroup>
+                    <optgroup label="📊 数据文件">
+                        <option value="sql">SQL - 数据库脚本</option>
+                        <option value="md">MD - Markdown文档</option>
+                    </optgroup>
+                    <optgroup label="🖼️ 图片文件">
+                        <option value="png">PNG - PNG图片</option>
+                        <option value="jpg">JPG - JPEG图片</option>
+                        <option value="gif">GIF - GIF动图</option>
+                        <option value="bmp">BMP - 位图图片</option>
+                        <option value="svg">SVG - 矢量图形</option>
+                    </optgroup>
+                    <optgroup label="📄 文档文件">
+                        <option value="pdf">PDF - PDF文档</option>
+                        <option value="docx">DOCX - Word文档</option>
+                        <option value="xlsx">XLSX - Excel表格</option>
+                        <option value="pptx">PPTX - PowerPoint演示文稿</option>
+                    </optgroup>
+                    <optgroup label="📦 压缩文件">
+                        <option value="zip">ZIP - 压缩包</option>
+                    </optgroup>
+                    <optgroup label="💾 二进制文件">
+                        <option value="bin">BIN - 二进制文件</option>
+                        <option value="dat">DAT - 数据文件</option>
+                    </optgroup>
+                    <optgroup label="🔧 其他">
+                        <option value="custom">自定义扩展名</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group" id="customExtGroup" style="display: none;">
+                <label for="customExt">自定义扩展名：</label>
+                <input type="text" id="customExt" placeholder="例如: pdf, docx, xlsx" maxlength="10">
+            </div>
+
+            <div class="form-group">
+                <label>快速选择文件大小：</label>
+                <div class="btn-group" style="margin-bottom: 15px;">
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(10, 'KB')">10 KB</button>
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(100, 'KB')">100 KB</button>
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(1, 'MB')">1 MB</button>
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(10, 'MB')">10 MB</button>
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(100, 'MB')">100 MB</button>
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(500, 'MB')">500 MB</button>
+                    <button class="btn btn-secondary" style="padding: 8px 15px; font-size: 14px;" onclick="setQuickSize(1, 'GB')">1 GB</button>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fileSize">自定义文件大小：</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="number" id="fileSize" min="0.001" max="10240" step="0.001" value="1" placeholder="文件大小" style="flex: 1;">
+                    <select id="sizeUnit" style="width: 120px; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                        <option value="KB">KB</option>
+                        <option value="MB" selected>MB</option>
+                        <option value="GB">GB</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fileName">文件名：</label>
+                <input type="text" id="fileName" value="test_file" placeholder="请输入文件名（不含扩展名）">
+            </div>
+
+            <div class="form-group" id="contentTypeGroup">
+                <label>文件内容：</label>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div class="radio-item">
+                        <input type="radio" id="contentRandom" name="contentType" value="random" checked>
+                        <label for="contentRandom">随机字符 - 适合测试文本处理</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="contentRepeated" name="contentType" value="repeated">
+                        <label for="contentRepeated">重复文本 - 高压缩比，适合测试压缩</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="contentNumbers" name="contentType" value="numbers">
+                        <label for="contentNumbers">数字序列 - 适合测试数据导入</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="contentStructured" name="contentType" value="structured">
+                        <label for="contentStructured">结构化数据 - 根据文件格式生成真实结构</label>
+                    </div>
+                    <div class="radio-item">
+                        <input type="radio" id="contentZeros" name="contentType" value="zeros">
+                        <label for="contentZeros">全零数据 - 最高压缩比</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="generateAndDownloadFile()">🚀 生成并下载文件</button>
+                <button class="btn btn-secondary" onclick="generateBatch()">📦 批量生成</button>
+                <button class="btn btn-secondary" onclick="loadFileGenExample()">💡 加载示例</button>
+            </div>
+
+            <!-- 批量生成配置 -->
+            <div id="batchConfigGroup" style="display: none; margin-top: 20px; padding: 20px; background: #f8f9fa; border-radius: 8px; border: 2px dashed #667eea;">
+                <h3 style="margin-bottom: 15px; color: #667eea;">📦 批量生成配置</h3>
+                <div class="form-group">
+                    <label>选择要生成的文件：</label>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="batch10KB" checked>
+                            <label for="batch10KB">10 KB</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="batch100KB" checked>
+                            <label for="batch100KB">100 KB</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="batch1MB" checked>
+                            <label for="batch1MB">1 MB</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="batch10MB" checked>
+                            <label for="batch10MB">10 MB</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="batch100MB">
+                            <label for="batch100MB">100 MB</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="batch500MB">
+                            <label for="batch500MB">500 MB</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button class="btn" onclick="executeBatchGeneration()">开始批量生成</button>
+                    <button class="btn btn-secondary" onclick="cancelBatch()">取消</button>
+                </div>
+            </div>
+
+            <!-- 添加进度条 -->
+            <div id="progressContainer" style="display: none; margin-top: 20px;">
+                <div style="background: #e0e0e0; border-radius: 10px; height: 30px; overflow: hidden;">
+                    <div id="progressBar" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px;">
+                        0%
+                    </div>
+                </div>
+                <div id="progressText" style="margin-top: 10px; color: #666; font-size: 14px; text-align: center;">
+                    准备生成...
+                </div>
+            </div>
+
+            <div class="result-area">
+                <label>文件信息：</label>
+                <div class="result-box" id="fileGenResult" style="min-height: 120px;">
+                    点击生成按钮创建测试文件
+                </div>
+                <div id="fileGenError" class="error-text"></div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #e8f5e9; border-radius: 8px; font-size: 14px; color: #2e7d32;">
+                <strong>✨ 支持的文件格式：</strong>
+                <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                    <li><strong>文本类</strong>：TXT, CSV, JSON, XML, HTML, LOG, MD, SQL</li>
+                    <li><strong>图片类</strong>：PNG, JPG, GIF, BMP, SVG（带完整文件头，可预览）</li>
+                    <li><strong>文档类</strong>：PDF, DOCX, XLSX, PPTX（可正常打开）</li>
+                    <li><strong>压缩包</strong>：ZIP（可正常解压）</li>
+                    <li><strong>二进制</strong>：BIN, DAT 及自定义格式</li>
+                    <li><strong>结构化数据</strong>：自动生成符合格式规范的真实数据</li>
+                </ul>
+            </div>
+
+            <div style="margin-top: 15px; padding: 15px; background: #fff3cd; border-radius: 8px; font-size: 14px; color: #856404;">
+                <strong>⚠️ 使用建议：</strong>
+                <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                    <li>50MB以上文件将显示生成进度</li>
+                    <li><strong>推荐单次生成不超过2GB</strong></li>
+                    <li>批量生成可一次创建多个不同大小的测试文件</li>
+                    <li>结构化数据模式会生成真实格式的文件内容（PDF、图片等自动使用）</li>
+                    <li>全零数据适合测试压缩算法效率</li>
+                    <li>PDF、DOCX等文档格式会生成真实可打开的文件</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 正则表达式测试器 -->
+        <div class="tool-card" id="regex-tester">
+            <h2 class="tool-title">🔍 正则表达式测试器</h2>
+            
+            <div class="form-group">
+                <label for="regexPattern">正则表达式：</label>
+                <input type="text" id="regexPattern" placeholder="例如: \d{3}-\d{4}-\d{4}" value="">
+            </div>
+
+            <div class="form-group">
+                <label>匹配选项：</label>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexGlobal" checked>
+                        <label for="regexGlobal">全局匹配 (g)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexMultiline">
+                        <label for="regexMultiline">多行模式 (m)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="regexIgnoreCase">
+                        <label for="regexIgnoreCase">忽略大小写 (i)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="regexTestText">测试文本：</label>
+                <textarea id="regexTestText" rows="6" placeholder="请输入要测试的文本内容&#10;支持多行文本"></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn" onclick="testRegex()">测试匹配</button>
+                <button class="btn btn-secondary" onclick="replaceWithRegex()">替换</button>
+                <button class="btn btn-secondary" onclick="extractWithRegex()">提取匹配项</button>
+                <button class="btn btn-secondary" onclick="loadRegexExample()">加载示例</button>
+                <button class="btn btn-secondary" onclick="clearRegex()">清空</button>
+            </div>
+
+            <div class="form-group" id="regexReplaceGroup" style="display: none;">
+                <label for="regexReplaceText">替换为：</label>
+                <input type="text" id="regexReplaceText" placeholder="替换内容，可使用 $1, $2... 引用捕获组">
+            </div>
+
+            <div class="result-area">
+                <label>匹配结果：</label>
+                <div class="result-box" id="regexResult" style="min-height: 100px; white-space: pre-wrap;">
+                    输入正则表达式和测试文本后点击测试
+                </div>
+                <div id="regexError" class="error-text"></div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #e3f2fd; border-radius: 8px; font-size: 14px; color: #1565c0;">
+                <strong>💡 使用提示：</strong>
+                <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                    <li><code>\d</code> 匹配数字，<code>\w</code> 匹配字母数字下划线，<code>\s</code> 匹配空白字符</li>
+                    <li><code>+</code> 一次或多次，<code>*</code> 零次或多次，<code>?</code> 零次或一次</li>
+                    <li><code>()</code> 捕获组，可在替换中用 <code>$1</code>, <code>$2</code>... 引用</li>
+                    <li><code>[abc]</code> 匹配 a 或 b 或 c，<code>[^abc]</code> 匹配除 a、b、c 外的字符</li>
+                    <li>示例：<code>^1[3-9]\d{9}$</code> 匹配手机号，<code>\b\w+@\w+\.\w+\b</code> 匹配邮箱</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 字符数量统计 -->
+        <div class="tool-card" id="char-counter">
+            <h2 class="tool-title">📊 字符数量统计</h2>
+            
+            <div class="form-group">
+                <label for="charCountText">输入文本：</label>
+                <textarea id="charCountText" rows="10" placeholder="请输入或粘贴要统计的文本内容" oninput="countCharacters()"></textarea>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-secondary" onclick="loadCharCountExample()">加载示例</button>
+                <button class="btn btn-secondary" onclick="clearCharCount()">清空</button>
+            </div>
+
+            <div class="result-area">
+                <label>统计结果：</label>
+                <div class="result-box" id="charCountResult" style="min-height: 300px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div class="stat-item">
+                            <div class="stat-label">字符总数</div>
+                            <div class="stat-value" id="totalChars">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">字符数（不含空格）</div>
+                            <div class="stat-value" id="charsNoSpace">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">中文字符数</div>
+                            <div class="stat-value" id="chineseChars">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">英文字母数</div>
+                            <div class="stat-value" id="englishChars">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">数字字符数</div>
+                            <div class="stat-value" id="digitChars">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">标点符号数</div>
+                            <div class="stat-value" id="punctuationChars">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">空格数</div>
+                            <div class="stat-value" id="spaceChars">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">行数</div>
+                            <div class="stat-value" id="lineCount">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">单词数</div>
+                            <div class="stat-value" id="wordCount">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">段落数</div>
+                            <div class="stat-value" id="paragraphCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px; padding: 15px; background: #f3e5f5; border-radius: 8px; font-size: 14px; color: #6a1b9a;">
+                <strong>📝 说明：</strong>
+                <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+                    <li><strong>字符总数</strong>：包含所有字符（含空格、换行等）</li>
+                    <li><strong>字符数（不含空格）</strong>：不包含空格、制表符、换行符的字符数</li>
+                    <li><strong>中文字符</strong>：包含汉字、中文标点符号</li>
+                    <li><strong>单词数</strong>：以空格分隔的单词数量（适用于英文）</li>
+                    <li><strong>段落数</strong>：以空行分隔的段落数量</li>
+                    <li>统计实时更新，无需点击按钮</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="toast" id="toast">复制成功！</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        // ========== 导航菜单功能 ==========
+        // 平滑滚动到对应工具
+        function scrollToTool(toolId, event) {
+            const element = document.getElementById(toolId);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                
+                // 更新导航激活状态
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                if (event && event.target) {
+                    event.target.classList.add('active');
+                }
+                
+                // 移动端自动关闭菜单
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('active');
+                }
+            }
+            return false;
+        }
+
+        // 切换移动端菜单
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // 监听滚动，自动更新导航高亮
+        window.addEventListener('scroll', () => {
+            const sections = ['random-string', 'json-formatter', 'base64', 'timestamp', 'url-codec', 'hash', 'pairwise', 'time-diff', 'file-generator'];
+            const scrollPos = window.scrollY + 100;
+
+            sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                    const sectionTop = section.offsetTop;
+                    const sectionBottom = sectionTop + section.offsetHeight;
+
+                    if (scrollPos >= sectionTop && scrollPos < sectionBottom) {
+                        document.querySelectorAll('.nav-link').forEach(link => {
+                            link.classList.remove('active');
+                        });
+                        document.querySelector(`a[href="#${sectionId}"]`).classList.add('active');
+                    }
+                }
+            });
+        });
+
+        // ========== 通用函数 ==========
+        // 显示提示消息
+        function showToast(message = '复制成功！') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 复制结果框内容
+        function copyResult(elementId) {
+            const resultText = document.getElementById(elementId).textContent;
+            
+            if (!resultText || resultText.includes('点击') || resultText.includes('选择')) {
+                alert('没有可复制的内容');
+                return;
+            }
+
+            copyToClipboard(resultText);
+        }
+
+        // 复制文本域内容
+        function copyTextarea(elementId) {
+            const textarea = document.getElementById(elementId);
+            const text = textarea.value;
+            
+            if (!text) {
+                alert('没有可复制的内容');
+                return;
+            }
+
+            copyToClipboard(text);
+        }
+
+        // 通用复制函数
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast();
+            }).catch(() => {
+                // 降级方案
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast();
+            });
+        }
+
+        // ========== 随机字符生成器 ==========
+        // 常用汉字字符集（3500个常用汉字）
+        const commonChinese = '的一是在不了有和人这中大为上个国我以要他时来用们生到作地于出就分对成会可主发年动同工也能下过子说产种面而方后多定行学法所民得经十三之进着等部度家电力里如水化高自二理起小物现实加量都两体制机当使点从业本去把性好应开它合还因由其些然前外天政四日那社义事平形相全表间样与关各重新线内数正心反你明看原又么利比或但质气第向道命此变条只没结解问意建月公无系军很情者最立代想已通并提直题党程展五果料象员革位入常文总次品式活设及管特件长求老头基资边流路级少图山统接知较将组见计别她手角期根论运农指几九区强放决西被干做必战先回则任取据处队南给色光门即保治北造百规热领七海口东导器压志世金增争济阶油思术极交受联什认六共权收证改清己美再采转更单风切打白教速花带安场身车例真务具万每目至达走积示议声报斗完类八离华名确才科张信马节话米整空元况今集温传土许步群广石记需段研界拉林律叫且究观越织装影算低持音众书布复容儿须际商非验连断深难近矿千周委素技备半办青省列习响约支般史感劳便团往酸历市克何除消构府称太准精值号率族维划选标写存候毛亲快效斯院查江型眼王按格养易置派层片始却专状育厂京识适属圆包火住调满县局照参红细引听该铁价严龙飞';
+
+        function generateRandomString() {
+            const length = parseInt(document.getElementById('length').value);
+            
+            if (!length || length < 1) {
+                alert('请输入有效的字符长度（至少为1）');
+                return;
+            }
+
+            if (length > 10000) {
+                alert('字符长度不能超过10000');
+                return;
+            }
+
+            const uppercase = document.getElementById('uppercase').checked;
+            const lowercase = document.getElementById('lowercase').checked;
+            const numbers = document.getElementById('numbers').checked;
+            const symbols = document.getElementById('symbols').checked;
+            const chinese = document.getElementById('chinese').checked;
+
+            if (!uppercase && !lowercase && !numbers && !symbols && !chinese) {
+                alert('请至少选择一种字符类型');
+                return;
+            }
+
+            let charset = '';
+            if (uppercase) charset += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (lowercase) charset += 'abcdefghijklmnopqrstuvwxyz';
+            if (numbers) charset += '0123456789';
+            if (symbols) charset += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+            if (chinese) charset += commonChinese;
+
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                const randomIndex = Math.floor(Math.random() * charset.length);
+                result += charset[randomIndex];
+            }
+
+            document.getElementById('result').textContent = result;
+        }
+
+        document.getElementById('length').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateRandomString();
+        });
+
+        // ========== JSON格式化 ==========
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            const output = document.getElementById('jsonOutput');
+            const error = document.getElementById('jsonError');
+            
+            error.textContent = '';
+            
+            if (!input) {
+                error.textContent = '请输入JSON数据';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                output.value = JSON.stringify(parsed, null, 2);
+            } catch (e) {
+                error.textContent = '❌ JSON解析错误: ' + e.message;
+                output.value = '';
+            }
+        }
+
+        function compressJSON() {
+            const input = document.getElementById('jsonInput').value.trim();
+            const output = document.getElementById('jsonOutput');
+            const error = document.getElementById('jsonError');
+            
+            error.textContent = '';
+            
+            if (!input) {
+                error.textContent = '请输入JSON数据';
+                return;
+            }
+
+            try {
+                const parsed = JSON.parse(input);
+                output.value = JSON.stringify(parsed);
+            } catch (e) {
+                error.textContent = '❌ JSON解析错误: ' + e.message;
+                output.value = '';
+            }
+        }
+
+        function clearJSON() {
+            document.getElementById('jsonInput').value = '';
+            document.getElementById('jsonOutput').value = '';
+            document.getElementById('jsonError').textContent = '';
+        }
+
+        // ========== Base64编解码 ==========
+        function encodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            const output = document.getElementById('base64Output');
+            const error = document.getElementById('base64Error');
+            
+            error.textContent = '';
+            
+            if (!input) {
+                error.textContent = '请输入要编码的文本';
+                return;
+            }
+
+            try {
+                output.value = btoa(unescape(encodeURIComponent(input)));
+            } catch (e) {
+                error.textContent = '❌ 编码失败: ' + e.message;
+            }
+        }
+
+        function decodeBase64() {
+            const input = document.getElementById('base64Input').value.trim();
+            const output = document.getElementById('base64Output');
+            const error = document.getElementById('base64Error');
+            
+            error.textContent = '';
+            
+            if (!input) {
+                error.textContent = '请输入要解码的Base64字符串';
+                return;
+            }
+
+            try {
+                output.value = decodeURIComponent(escape(atob(input)));
+            } catch (e) {
+                error.textContent = '❌ 解码失败: 无效的Base64字符串';
+            }
+        }
+
+        function clearBase64() {
+            document.getElementById('base64Input').value = '';
+            document.getElementById('base64Output').value = '';
+            document.getElementById('base64Error').textContent = '';
+        }
+
+        // ========== 时间戳转换 ==========
+        function convertTimestamp() {
+            let timestamp = document.getElementById('timestampInput').value.trim();
+            const result = document.getElementById('timestampResult');
+            
+            if (!timestamp) {
+                timestamp = Date.now();
+            } else {
+                timestamp = parseInt(timestamp);
+                if (isNaN(timestamp)) {
+                    result.textContent = '❌ 请输入有效的时间戳';
+                    return;
+                }
+            }
+
+            const date = new Date(timestamp);
+            result.innerHTML = `
+                <strong>时间戳：</strong>${timestamp}<br>
+                <strong>北京时间：</strong>${date.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}<br>
+                <strong>UTC时间：</strong>${date.toUTCString()}<br>
+                <strong>ISO格式：</strong>${date.toISOString()}
+            `;
+        }
+
+        function getCurrentTimestamp() {
+            const timestamp = Date.now();
+            document.getElementById('timestampInput').value = timestamp;
+            convertTimestamp();
+        }
+
+        function convertDateToTimestamp() {
+            const dateInput = document.getElementById('dateInput').value;
+            const result = document.getElementById('dateResult');
+            
+            if (!dateInput) {
+                result.textContent = '❌ 请选择日期时间';
+                return;
+            }
+
+            const timestamp = new Date(dateInput).getTime();
+            result.innerHTML = `
+                <strong>时间戳（毫秒）：</strong>${timestamp}<br>
+                <strong>时间戳（秒）：</strong>${Math.floor(timestamp / 1000)}
+            `;
+        }
+
+        // ========== URL编解码 ==========
+        function encodeURL() {
+            const input = document.getElementById('urlInput').value;
+            const output = document.getElementById('urlOutput');
+            const error = document.getElementById('urlError');
+            
+            error.textContent = '';
+            
+            if (!input) {
+                error.textContent = '请输入要编码的URL或文本';
+                return;
+            }
+
+            try {
+                output.value = encodeURIComponent(input);
+            } catch (e) {
+                error.textContent = '❌ 编码失败: ' + e.message;
+            }
+        }
+
+        function decodeURL() {
+            const input = document.getElementById('urlInput').value.trim();
+            const output = document.getElementById('urlOutput');
+            const error = document.getElementById('urlError');
+            
+            error.textContent = '';
+            
+            if (!input) {
+                error.textContent = '请输入要解码的URL';
+                return;
+            }
+
+            try {
+                output.value = decodeURIComponent(input);
+            } catch (e) {
+                error.textContent = '❌ 解码失败: ' + e.message;
+            }
+        }
+
+        function clearURL() {
+            document.getElementById('urlInput').value = '';
+            document.getElementById('urlOutput').value = '';
+            document.getElementById('urlError').textContent = '';
+        }
+
+        // ========== 哈希加密 ==========
+        function generateHash() {
+            const input = document.getElementById('hashInput').value;
+            const output = document.getElementById('hashOutput');
+            const algo = document.querySelector('input[name="hashAlgo"]:checked').value;
+            
+            if (!input) {
+                output.textContent = '❌ 请输入要加密的文本';
+                return;
+            }
+
+            let hash;
+            switch(algo) {
+                case 'md5':
+                    hash = CryptoJS.MD5(input).toString();
+                    break;
+                case 'sha1':
+                    hash = CryptoJS.SHA1(input).toString();
+                    break;
+                case 'sha256':
+                    hash = CryptoJS.SHA256(input).toString();
+                    break;
+            }
+
+            output.innerHTML = `
+                <strong>算法：</strong>${algo.toUpperCase()}<br>
+                <strong>哈希值：</strong>${hash}
+            `;
+        }
+
+        function clearHash() {
+            document.getElementById('hashInput').value = '';
+            document.getElementById('hashOutput').textContent = '输入文本后点击生成';
+        }
+
+        // ========== 成对组合测试 (Pairwise) ==========
+        // 简化的成对组合算法实现
+        function generatePairwise() {
+            const input = document.getElementById('pairwiseInput').value.trim();
+            const output = document.getElementById('pairwiseOutput');
+            const error = document.getElementById('pairwiseError');
+            const stats = document.getElementById('pairwiseStats');
+            const statsText = document.getElementById('pairwiseStatsText');
+            const order = parseInt(document.querySelector('input[name="pairwiseOrder"]:checked').value);
+            
+            error.textContent = '';
+            stats.style.display = 'none';
+            
+            if (!input) {
+                error.textContent = '请输入测试参数配置';
+                return;
+            }
+
+            try {
+                // 解析输入参数
+                const parameters = [];
+                const lines = input.split('\n').filter(line => line.trim());
+                
+                for (const line of lines) {
+                    const parts = line.split(':');
+                    if (parts.length !== 2) {
+                        error.textContent = '❌ 格式错误：每行格式应为 "参数名: 值1, 值2, 值3"';
+                        return;
+                    }
+                    
+                    const paramName = parts[0].trim();
+                    const values = parts[1].split(',').map(v => v.trim()).filter(v => v);
+                    
+                    if (values.length === 0) {
+                        error.textContent = `❌ 参数 "${paramName}" 没有值`;
+                        return;
+                    }
+                    
+                    parameters.push({ name: paramName, values: values });
+                }
+
+                if (parameters.length < 2) {
+                    error.textContent = '❌ 至少需要2个参数';
+                    return;
+                }
+
+                // 生成测试用例
+                let testCases;
+                if (order === 2) {
+                    testCases = generatePairwiseCombinations(parameters);
+                } else {
+                    testCases = generate3WayCombinations(parameters);
+                }
+
+                // 计算全量组合数
+                const fullCombinations = parameters.reduce((acc, param) => acc * param.values.length, 1);
+
+                // 格式化输出
+                const header = parameters.map(p => p.name).join('\t');
+                const rows = testCases.map((testCase, index) => {
+                    return `${index + 1}\t${testCase.join('\t')}`;
+                }).join('\n');
+
+                output.value = `编号\t${header}\n${rows}`;
+
+                // 显示统计信息
+                stats.style.display = 'block';
+                statsText.textContent = `生成 ${testCases.length} 个测试用例（全量组合需要 ${fullCombinations} 个，优化率 ${((1 - testCases.length/fullCombinations) * 100).toFixed(1)}%）`;
+
+            } catch (e) {
+                error.textContent = '❌ 生成失败: ' + e.message;
+            }
+        }
+
+        // 两两组合算法（贪婪算法）
+        function generatePairwiseCombinations(parameters) {
+            // 生成所有需要覆盖的配对
+            const pairs = [];
+            for (let i = 0; i < parameters.length; i++) {
+                for (let j = i + 1; j < parameters.length; j++) {
+                    for (const val1 of parameters[i].values) {
+                        for (const val2 of parameters[j].values) {
+                            pairs.push({ indices: [i, j], values: [val1, val2] });
+                        }
+                    }
+                }
+            }
+
+            const testCases = [];
+            const uncoveredPairs = new Set(pairs.map((p, idx) => idx));
+
+            // 贪婪算法：每次选择覆盖最多未覆盖配对的测试用例
+            while (uncoveredPairs.size > 0) {
+                let bestCase = null;
+                let maxCoverage = 0;
+
+                // 尝试多个随机组合，选择覆盖最多的
+                for (let attempt = 0; attempt < 50; attempt++) {
+                    const candidate = parameters.map(p => p.values[Math.floor(Math.random() * p.values.length)]);
+                    const coverage = countCoverage(candidate, pairs, uncoveredPairs, parameters);
+
+                    if (coverage > maxCoverage) {
+                        maxCoverage = coverage;
+                        bestCase = candidate;
+                    }
+                }
+
+                // 如果随机生成效果不好，尝试针对性构造
+                if (maxCoverage === 0 && uncoveredPairs.size > 0) {
+                    const targetPairIdx = Array.from(uncoveredPairs)[0];
+                    const targetPair = pairs[targetPairIdx];
+                    bestCase = constructCaseForPair(targetPair, parameters);
+                }
+
+                if (bestCase) {
+                    testCases.push(bestCase);
+                    // 更新未覆盖的配对
+                    updateCoverage(bestCase, pairs, uncoveredPairs, parameters);
+                }
+
+                // 防止无限循环
+                if (testCases.length > parameters.reduce((acc, p) => acc * p.values.length, 1)) {
+                    break;
+                }
+            }
+
+            return testCases;
+        }
+
+        // 三因子组合算法（简化版）
+        function generate3WayCombinations(parameters) {
+            if (parameters.length < 3) {
+                return generatePairwiseCombinations(parameters);
+            }
+
+            // 生成所有需要覆盖的三元组
+            const triples = [];
+            for (let i = 0; i < parameters.length; i++) {
+                for (let j = i + 1; j < parameters.length; j++) {
+                    for (let k = j + 1; k < parameters.length; k++) {
+                        for (const val1 of parameters[i].values) {
+                            for (const val2 of parameters[j].values) {
+                                for (const val3 of parameters[k].values) {
+                                    triples.push({ indices: [i, j, k], values: [val1, val2, val3] });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            const testCases = [];
+            const uncoveredTriples = new Set(triples.map((t, idx) => idx));
+
+            while (uncoveredTriples.size > 0) {
+                let bestCase = null;
+                let maxCoverage = 0;
+
+                for (let attempt = 0; attempt < 100; attempt++) {
+                    const candidate = parameters.map(p => p.values[Math.floor(Math.random() * p.values.length)]);
+                    const coverage = count3WayCoverage(candidate, triples, uncoveredTriples, parameters);
+
+                    if (coverage > maxCoverage) {
+                        maxCoverage = coverage;
+                        bestCase = candidate;
+                    }
+                }
+
+                if (maxCoverage === 0 && uncoveredTriples.size > 0) {
+                    const targetTripleIdx = Array.from(uncoveredTriples)[0];
+                    const targetTriple = triples[targetTripleIdx];
+                    bestCase = constructCaseFor3Way(targetTriple, parameters);
+                }
+
+                if (bestCase) {
+                    testCases.push(bestCase);
+                    update3WayCoverage(bestCase, triples, uncoveredTriples, parameters);
+                }
+
+                if (testCases.length > parameters.reduce((acc, p) => acc * p.values.length, 1)) {
+                    break;
+                }
+            }
+
+            return testCases;
+        }
+
+        // 辅助函数：计算测试用例覆盖的配对数
+        function countCoverage(testCase, pairs, uncoveredPairs, parameters) {
+            let count = 0;
+            uncoveredPairs.forEach(idx => {
+                const pair = pairs[idx];
+                if (testCase[pair.indices[0]] === pair.values[0] && 
+                    testCase[pair.indices[1]] === pair.values[1]) {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        // 辅助函数：更新覆盖状态
+        function updateCoverage(testCase, pairs, uncoveredPairs, parameters) {
+            const toRemove = [];
+            uncoveredPairs.forEach(idx => {
+                const pair = pairs[idx];
+                if (testCase[pair.indices[0]] === pair.values[0] && 
+                    testCase[pair.indices[1]] === pair.values[1]) {
+                    toRemove.push(idx);
+                }
+            });
+            toRemove.forEach(idx => uncoveredPairs.delete(idx));
+        }
+
+        // 辅助函数：为特定配对构造测试用例
+        function constructCaseForPair(pair, parameters) {
+            const testCase = parameters.map(p => p.values[0]);
+            testCase[pair.indices[0]] = pair.values[0];
+            testCase[pair.indices[1]] = pair.values[1];
+            return testCase;
+        }
+
+        // 辅助函数：计算三因子覆盖
+        function count3WayCoverage(testCase, triples, uncoveredTriples, parameters) {
+            let count = 0;
+            uncoveredTriples.forEach(idx => {
+                const triple = triples[idx];
+                if (testCase[triple.indices[0]] === triple.values[0] && 
+                    testCase[triple.indices[1]] === triple.values[1] &&
+                    testCase[triple.indices[2]] === triple.values[2]) {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        // 辅助函数：更新三因子覆盖
+        function update3WayCoverage(testCase, triples, uncoveredTriples, parameters) {
+            const toRemove = [];
+            uncoveredTriples.forEach(idx => {
+                const triple = triples[idx];
+                if (testCase[triple.indices[0]] === triple.values[0] && 
+                    testCase[triple.indices[1]] === triple.values[1] &&
+                    testCase[triple.indices[2]] === triple.values[2]) {
+                    toRemove.push(idx);
+                }
+            });
+            toRemove.forEach(idx => uncoveredTriples.delete(idx));
+        }
+
+        // 辅助函数：为特定三元组构造测试用例
+        function constructCaseFor3Way(triple, parameters) {
+            const testCase = parameters.map(p => p.values[0]);
+            testCase[triple.indices[0]] = triple.values[0];
+            testCase[triple.indices[1]] = triple.values[1];
+            testCase[triple.indices[2]] = triple.values[2];
+            return testCase;
+        }
+
+        // 加载示例
+        function loadPairwiseExample() {
+            const example = `浏览器: Chrome, Firefox, Safari, Edge
+操作系统: Windows, macOS, Linux
+分辨率: 1920x1080, 1366x768, 2560x1440
+语言: 中文, 英文, 日文`;
+            document.getElementById('pairwiseInput').value = example;
+        }
+
+        // 清空
+        function clearPairwise() {
+            document.getElementById('pairwiseInput').value = '';
+            document.getElementById('pairwiseOutput').value = '';
+            document.getElementById('pairwiseError').textContent = '';
+            document.getElementById('pairwiseStats').style.display = 'none';
+        }
+
+        // 导出CSV
+        function exportPairwiseCSV() {
+            const output = document.getElementById('pairwiseOutput').value;
+            
+            if (!output) {
+                alert('没有可导出的测试用例');
+                return;
+            }
+
+            // 将制表符替换为逗号（CSV格式）
+            const csvContent = output.replace(/\t/g, ',');
+            
+            // 创建下载
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'pairwise_testcases_' + new Date().getTime() + '.csv');
+            link.style.visibility = 'hidden';
+            
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showToast('CSV文件已导出！');
+        }
+
+        // ========== 时间差计算 ==========
+        // 设置当前时间
+        function setCurrentTime(inputId) {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            const second = String(now.getSeconds()).padStart(2, '0');
+            
+            const timeString = `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+            document.getElementById(inputId).value = timeString;
+        }
+
+        // 解析时间字符串（严格验证版）
+        function parseTimeString(timeStr) {
+            timeStr = timeStr.trim().replace(/\//g, '-');
+            
+            const patterns = [
+                {
+                    regex: /^(\d{4})-(\d{1,2})-(\d{1,2})\s+(\d{1,2}):(\d{1,2}):(\d{1,2})$/,
+                    hasTime: true
+                },
+                {
+                    regex: /^(\d{4})-(\d{1,2})-(\d{1,2})$/,
+                    hasTime: false
+                }
+            ];
+            
+            for (const pattern of patterns) {
+                const match = timeStr.match(pattern.regex);
+                if (match) {
+                    const year = parseInt(match[1]);
+                    const month = parseInt(match[2]);
+                    const day = parseInt(match[3]);
+                    let hour = 0, minute = 0, second = 0;
+                    
+                    if (pattern.hasTime) {
+                        hour = parseInt(match[4]);
+                        minute = parseInt(match[5]);
+                        second = parseInt(match[6]);
+                    }
+                    
+                    const validation = validateDateTime(year, month, day, hour, minute, second);
+                    if (!validation.valid) {
+                        throw new Error(validation.error);
+                    }
+                    
+                    const date = new Date(year, month - 1, day, hour, minute, second);
+                    
+                    if (date.getFullYear() !== year || 
+                        date.getMonth() !== month - 1 || 
+                        date.getDate() !== day ||
+                        (pattern.hasTime && (date.getHours() !== hour || date.getMinutes() !== minute || date.getSeconds() !== second))) {
+                        throw new Error('日期不存在或无效');
+                    }
+                    
+                    return date;
+                }
+            }
+            
+            throw new Error('时间格式不正确');
+        }
+
+        // 严格验证日期时间各字段
+        function validateDateTime(year, month, day, hour, minute, second) {
+            if (year < 1000 || year > 9999) {
+                return { valid: false, error: '年份必须在1000-9999之间' };
+            }
+            
+            if (month < 1 || month > 12) {
+                return { valid: false, error: '月份必须在1-12之间' };
+            }
+            
+            if (hour < 0 || hour > 23) {
+                return { valid: false, error: '小时必须在0-23之间' };
+            }
+            
+            if (minute < 0 || minute > 59) {
+                return { valid: false, error: '分钟必须在0-59之间' };
+            }
+            
+            if (second < 0 || second > 59) {
+                return { valid: false, error: '秒必须在0-59之间' };
+            }
+            
+            const maxDay = getMaxDayInMonth(year, month);
+            if (day < 1 || day > maxDay) {
+                return { valid: false, error: `${month}月的日期必须在1-${maxDay}之间` };
+            }
+            
+            return { valid: true };
+        }
+
+        // 获取指定年月的最大天数
+        function getMaxDayInMonth(year, month) {
+            const daysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            
+            if (month === 2) {
+                return isLeapYear(year) ? 29 : 28;
+            }
+            
+            return daysInMonth[month - 1];
+        }
+
+        // 判断是否为闰年
+        function isLeapYear(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
+        }
+
+        // 计算时间差
+        function calculateTimeDifference() {
+            const startTimeStr = document.getElementById('startTime').value.trim();
+            const endTimeStr = document.getElementById('endTime').value.trim();
+            const result = document.getElementById('timeDiffResult');
+            const error = document.getElementById('timeDiffError');
+            
+            error.textContent = '';
+            
+            if (!startTimeStr || !endTimeStr) {
+                error.textContent = '请输入开始时间和结束时间';
+                return;
+            }
+            
+            let startTime, endTime;
+            
+            try {
+                startTime = parseTimeString(startTimeStr);
+            } catch (e) {
+                error.textContent = '❌ 开始时间错误：' + e.message;
+                return;
+            }
+            
+            try {
+                endTime = parseTimeString(endTimeStr);
+            } catch (e) {
+                error.textContent = '❌ 结束时间错误：' + e.message;
+                return;
+            }
+            
+            if (isNaN(startTime.getTime())) {
+                error.textContent = '❌ 开始时间无效';
+                return;
+            }
+            
+            if (isNaN(endTime.getTime())) {
+                error.textContent = '❌ 结束时间无效';
+                return;
+            }
+            
+            // 计算时间差（毫秒）
+            let diffMs = endTime.getTime() - startTime.getTime();
+            const isNegative = diffMs < 0;
+            diffMs = Math.abs(diffMs);
+            
+            // 转换为各种单位
+            const diffSeconds = Math.floor(diffMs / 1000);
+            const diffMinutes = Math.floor(diffSeconds / 60);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+            
+            // 计算详细的时间差
+            const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diffMs % (1000 * 60)) / 1000);
+            const milliseconds = diffMs % 1000;
+            
+            // 计算周、月、年（近似值）
+            const weeks = Math.floor(diffDays / 7);
+            const months = Math.floor(diffDays / 30);
+            const years = Math.floor(diffDays / 365);
+            
+            // 格式化输出
+            const prefix = isNegative ? '（结束时间早于开始时间，时间差为负值）<br>' : '';
+            const sign = isNegative ? '-' : '';
+            
+            result.innerHTML = `
+                ${prefix}
+                <strong>📅 标准格式：</strong>${sign}${days}天 ${String(hours).padStart(2, '0')}时 ${String(minutes).padStart(2, '0')}分 ${String(seconds).padStart(2, '0')}秒<br><br>
+                
+                <strong>📊 详细信息：</strong><br>
+                • 总天数：${sign}${diffDays} 天<br>
+                • 总小时数：${sign}${diffHours} 小时<br>
+                • 总分钟数：${sign}${diffMinutes} 分钟<br>
+                • 总秒数：${sign}${diffSeconds} 秒<br>
+                • 总毫秒数：${sign}${diffMs} 毫秒<br><br>
+                
+                <strong>🗓️ 近似换算：</strong><br>
+                • 约 ${sign}${weeks} 周<br>
+                • 约 ${sign}${months} 个月<br>
+                • 约 ${sign}${years} 年<br><br>
+                
+                <strong>⏰ 开始时间：</strong>${startTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}<br>
+                <strong>⏰ 结束时间：</strong>${endTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}
+            `;
+        }
+
+        // 加载示例
+        function loadTimeDiffExample() {
+            document.getElementById('startTime').value = '2024-10-16 14:37:49';
+            document.getElementById('endTime').value = '2025-12-01 14:37:50';
+        }
+
+        // 清空
+        function clearTimeDiff() {
+            document.getElementById('startTime').value = '';
+            document.getElementById('endTime').value = '';
+            document.getElementById('timeDiffResult').textContent = '输入两个时间后点击计算';
+            document.getElementById('timeDiffError').textContent = '';
+        }
+
+        // ========== 测试文件生成器 ==========
+        
+        // 文件格式配置
+        const FILE_FORMATS = {
+            txt: { ext: 'txt', mime: 'text/plain', name: 'TXT文本', binary: false },
+            csv: { ext: 'csv', mime: 'text/csv', name: 'CSV文件', binary: false },
+            json: { ext: 'json', mime: 'application/json', name: 'JSON文件', binary: false },
+            xml: { ext: 'xml', mime: 'application/xml', name: 'XML文件', binary: false },
+            html: { ext: 'html', mime: 'text/html', name: 'HTML文件', binary: false },
+            log: { ext: 'log', mime: 'text/plain', name: 'LOG日志', binary: false },
+            sql: { ext: 'sql', mime: 'application/sql', name: 'SQL脚本', binary: false },
+            md: { ext: 'md', mime: 'text/markdown', name: 'Markdown文档', binary: false },
+            png: { ext: 'png', mime: 'image/png', name: 'PNG图片', binary: true },
+            jpg: { ext: 'jpg', mime: 'image/jpeg', name: 'JPG图片', binary: true },
+            gif: { ext: 'gif', mime: 'image/gif', name: 'GIF图片', binary: true },
+            bmp: { ext: 'bmp', mime: 'image/bmp', name: 'BMP图片', binary: true },
+            svg: { ext: 'svg', mime: 'image/svg+xml', name: 'SVG矢量图', binary: false },
+            pdf: { ext: 'pdf', mime: 'application/pdf', name: 'PDF文档', binary: true },
+            docx: { ext: 'docx', mime: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', name: 'Word文档', binary: true },
+            xlsx: { ext: 'xlsx', mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', name: 'Excel表格', binary: true },
+            pptx: { ext: 'pptx', mime: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', name: 'PowerPoint演示', binary: true },
+            zip: { ext: 'zip', mime: 'application/zip', name: 'ZIP压缩包', binary: true },
+            bin: { ext: 'bin', mime: 'application/octet-stream', name: '二进制文件', binary: true },
+            dat: { ext: 'dat', mime: 'application/octet-stream', name: 'DAT数据文件', binary: true },
+            custom: { ext: 'dat', mime: 'application/octet-stream', name: '自定义格式', binary: true }
+        };
+        
+        // 更新文件格式UI
+        function updateFileFormatUI() {
+            const format = document.getElementById('fileFormat').value;
+            const customExtGroup = document.getElementById('customExtGroup');
+            
+            // 显示/隐藏自定义扩展名输入框
+            if (format === 'custom') {
+                customExtGroup.style.display = 'block';
+            } else {
+                customExtGroup.style.display = 'none';
+            }
+        }
+        
+        // 快速设置文件大小
+        function setQuickSize(size, unit) {
+            document.getElementById('fileSize').value = size;
+            document.getElementById('sizeUnit').value = unit;
+        }
+        
+        // 显示/隐藏批量生成配置
+        function generateBatch() {
+            const batchConfig = document.getElementById('batchConfigGroup');
+            batchConfig.style.display = batchConfig.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // 取消批量生成
+        function cancelBatch() {
+            document.getElementById('batchConfigGroup').style.display = 'none';
+        }
+        
+        // 执行批量生成
+        async function executeBatchGeneration() {
+            const sizes = [
+                { id: 'batch10KB', size: 10, unit: 'KB' },
+                { id: 'batch100KB', size: 100, unit: 'KB' },
+                { id: 'batch1MB', size: 1, unit: 'MB' },
+                { id: 'batch10MB', size: 10, unit: 'MB' },
+                { id: 'batch100MB', size: 100, unit: 'MB' },
+                { id: 'batch500MB', size: 500, unit: 'MB' }
+            ];
+            
+            const selected = sizes.filter(s => document.getElementById(s.id).checked);
+            
+            if (selected.length === 0) {
+                alert('请至少选择一个文件大小');
+                return;
+            }
+            
+            const format = document.getElementById('fileFormat').value;
+            const baseName = document.getElementById('fileName').value.trim() || 'test';
+            const contentType = document.querySelector('input[name="contentType"]:checked').value;
+            
+            cancelBatch();
+            
+            for (let i = 0; i < selected.length; i++) {
+                const item = selected[i];
+                const fileName = `${baseName}_${item.size}${item.unit}`;
+                
+                // 临时设置大小
+                document.getElementById('fileSize').value = item.size;
+                document.getElementById('sizeUnit').value = item.unit;
+                
+                // 生成文件
+                await generateAndDownloadFile(true);
+                
+                // 等待一下再生成下一个
+                if (i < selected.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+            
+            showToast('批量生成完成！');
+        }
+        
+        // 生成并下载文件（优化版）
+        async function generateAndDownloadFile(isBatch = false) {
+            const sizeInput = parseFloat(document.getElementById('fileSize').value);
+            const unit = document.getElementById('sizeUnit').value;
+            const fileName = document.getElementById('fileName').value.trim() || 'test_file';
+            const contentType = document.querySelector('input[name="contentType"]:checked').value;
+            const format = document.getElementById('fileFormat').value;
+            const result = document.getElementById('fileGenResult');
+            const error = document.getElementById('fileGenError');
+            const progressContainer = document.getElementById('progressContainer');
+            
+            error.textContent = '';
+            
+            if (!sizeInput || sizeInput <= 0) {
+                error.textContent = '请输入有效的文件大小（大于0）';
+                return;
+            }
+            
+            // 获取文件扩展名
+            let fileExt = FILE_FORMATS[format]?.ext || 'dat';
+            let mimeType = FILE_FORMATS[format]?.mime || 'application/octet-stream';
+            
+            if (format === 'custom') {
+                const customExt = document.getElementById('customExt').value.trim();
+                if (customExt) {
+                    fileExt = customExt.replace(/^\./, ''); // 移除开头的点
+                } else {
+                    error.textContent = '请输入自定义扩展名';
+                    return;
+                }
+            }
+            
+            // 计算字节数
+            let sizeInBytes = sizeInput;
+            switch(unit) {
+                case 'KB': sizeInBytes = sizeInput * 1024; break;
+                case 'MB': sizeInBytes = sizeInput * 1024 * 1024; break;
+                case 'GB': sizeInBytes = sizeInput * 1024 * 1024 * 1024; break;
+            }
+            
+            // 软限制警告（500MB）
+            if (sizeInBytes > 500 * 1024 * 1024 && !isBatch) {
+                const sizeStr = formatFileSize(sizeInBytes);
+                const confirmed = confirm(`⚠️ 文件大小为 ${sizeStr}，生成可能需要较长时间。\n\n• 小于100MB：约几秒\n• 100MB-1GB：约10-60秒\n• 大于1GB：可能需要数分钟\n\n是否继续？`);
+                if (!confirmed) {
+                    return;
+                }
+            }
+            
+            // 根据文件大小选择生成策略
+            if (sizeInBytes < 50 * 1024 * 1024) {
+                // 小文件（<50MB）：一次性生成
+                await generateSmallFile(sizeInBytes, fileName, fileExt, format, contentType, mimeType, result, error);
+            } else {
+                // 大文件（≥50MB）：流式生成
+                await generateLargeFileStreaming(sizeInBytes, fileName, fileExt, format, contentType, mimeType, result, error, progressContainer);
+            }
+        }
+
+        // 小文件生成（一次性）
+        async function generateSmallFile(sizeInBytes, fileName, fileExt, format, contentType, mimeType, result, error) {
+            result.innerHTML = '<strong>⏳ 正在生成文件...</strong>';
+            
+            setTimeout(() => {
+                try {
+                    const startTime = Date.now();
+                    const content = generateFileContentByFormat(sizeInBytes, format, contentType);
+                    const blob = new Blob([content], { type: mimeType });
+                    downloadBlob(blob, fileName, fileExt);
+                    
+                    const endTime = Date.now();
+                    showGenerationResult(blob.size, fileName, fileExt, format, contentType, (endTime - startTime) / 1000, result);
+                } catch (e) {
+                    error.textContent = '❌ 文件生成失败: ' + e.message;
+                    result.innerHTML = '点击生成按钮创建测试文件';
+                }
+            }, 50);
+        }
+
+        // 大文件流式生成（边生成边合并，减少内存占用）
+        async function generateLargeFileStreaming(sizeInBytes, fileName, fileExt, format, contentType, mimeType, result, error, progressContainer) {
+            const progressBar = document.getElementById('progressBar');
+            const progressText = document.getElementById('progressText');
+            
+            progressContainer.style.display = 'block';
+            result.innerHTML = '<strong>⏳ 正在生成大文件，请稍候...</strong>';
+            
+            try {
+                const startTime = Date.now();
+                
+                // 关键优化：分批合并，避免内存累积
+                const batchSize = 10; // 每10个chunk合并一次
+                const chunkSize = 2 * 1024 * 1024; // 2MB per chunk
+                let allBlobs = []; // 存储合并后的Blob
+                let tempChunks = []; // 临时存储待合并的chunks
+                let remainingSize = sizeInBytes;
+                let processedSize = 0;
+                
+                // 如果是结构化格式，先添加头部
+                if (contentType === 'structured') {
+                    const header = getFileHeader(format);
+                    if (header) {
+                        tempChunks.push(header);
+                        processedSize += header.length;
+                    }
+                }
+                
+                while (remainingSize > 0) {
+                    const currentChunkSize = Math.min(chunkSize, remainingSize);
+                    
+                    // 让UI有机会更新
+                    if (tempChunks.length % 5 === 0) {
+                        await new Promise(resolve => setTimeout(resolve, 10));
+                    }
+                    
+                    // 生成chunk
+                    const chunk = generateFileContentByFormat(currentChunkSize, format, contentType, true);
+                    tempChunks.push(chunk);
+                    
+                    processedSize += currentChunkSize;
+                    remainingSize -= currentChunkSize;
+                    
+                    // 更新进度
+                    const progress = Math.round((processedSize / sizeInBytes) * 100);
+                    progressBar.style.width = progress + '%';
+                    progressBar.textContent = progress + '%';
+                    progressText.textContent = `已生成: ${formatFileSize(processedSize)} / ${formatFileSize(sizeInBytes)}`;
+                    
+                    // 定期合并chunks，释放内存
+                    if (tempChunks.length >= batchSize || remainingSize === 0) {
+                        const batchBlob = new Blob(tempChunks, { type: mimeType });
+                        allBlobs.push(batchBlob);
+                        tempChunks = []; // 清空临时数组
+                    }
+                }
+                
+                // 如果是结构化格式，添加尾部
+                if (contentType === 'structured') {
+                    const footer = getFileFooter(format);
+                    if (footer) {
+                        allBlobs.push(new Blob([footer], { type: mimeType }));
+                    }
+                }
+                
+                // 最终合并
+                progressText.textContent = '正在合并文件...';
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                const finalBlob = new Blob(allBlobs, { type: mimeType });
+                
+                // 下载
+                downloadBlob(finalBlob, fileName, fileExt);
+                
+                const endTime = Date.now();
+                progressContainer.style.display = 'none';
+                showGenerationResult(finalBlob.size, fileName, fileExt, format, contentType, (endTime - startTime) / 1000, result);
+                
+                // 清理
+                allBlobs = null;
+                
+            } catch (e) {
+                progressContainer.style.display = 'none';
+                error.textContent = '❌ 文件生成失败: ' + e.message + '\n建议生成较小的文件或刷新页面重试';
+                result.innerHTML = '点击生成按钮创建测试文件';
+                console.error('文件生成错误:', e);
+            }
+        }
+
+        // 根据格式生成文件内容
+        function generateFileContentByFormat(sizeInBytes, format, contentType, isChunk = false) {
+            // 二进制格式（PDF, PNG, JPG等）必须生成结构化内容
+            const binaryFormats = ['pdf', 'png', 'jpg', 'gif', 'bmp', 'zip', 'docx', 'xlsx', 'pptx'];
+            
+            if (binaryFormats.includes(format)) {
+                // 二进制格式忽略contentType，强制使用结构化生成
+                return generateStructuredContent(format, sizeInBytes, isChunk);
+            }
+            
+            // 如果是结构化内容，根据格式生成
+            if (contentType === 'structured' && !isChunk) {
+                return generateStructuredContent(format, sizeInBytes, isChunk);
+            }
+            
+            // 否则使用基础内容生成
+            return generateBaseContent(sizeInBytes, contentType);
+        }
+        
+        // 生成结构化内容
+        function generateStructuredContent(format, targetSize, isChunk = false) {
+            let content = '';
+            
+            switch(format) {
+                case 'json':
+                    content = generateJSONContent(targetSize);
+                    break;
+                case 'csv':
+                    content = generateCSVContent(targetSize);
+                    break;
+                case 'xml':
+                    content = generateXMLContent(targetSize);
+                    break;
+                case 'html':
+                    content = generateHTMLContent(targetSize);
+                    break;
+                case 'sql':
+                    content = generateSQLContent(targetSize);
+                    break;
+                case 'log':
+                    content = generateLogContent(targetSize);
+                    break;
+                case 'md':
+                    content = generateMarkdownContent(targetSize);
+                    break;
+                case 'svg':
+                    content = generateSVGContent(targetSize);
+                    break;
+                case 'bmp':
+                    content = generateBMPContent(targetSize);
+                    break;
+                case 'png':
+                    content = generatePNGContent(targetSize);
+                    break;
+                case 'jpg':
+                    content = generateJPGContent(targetSize);
+                    break;
+                case 'gif':
+                    content = generateGIFContent(targetSize);
+                    break;
+                case 'pdf':
+                    content = generatePDFContent(targetSize);
+                    break;
+                case 'zip':
+                    content = generateZIPContent(targetSize);
+                    break;
+                case 'docx':
+                    content = generateDOCXContent(targetSize);
+                    break;
+                case 'xlsx':
+                    content = generateXLSXContent(targetSize);
+                    break;
+                case 'pptx':
+                    content = generatePPTXContent(targetSize);
+                    break;
+                default:
+                    content = generateBaseContent(targetSize, 'random');
+            }
+            
+            return content;
+        }
+        
+        // 生成JSON内容
+        function generateJSONContent(targetSize) {
+            let content = '{\n  "data": [\n';
+            let currentSize = content.length;
+            let index = 0;
+            
+            while (currentSize < targetSize - 100) {
+                const item = `    {"id": ${index}, "name": "Test User ${index}", "email": "user${index}@test.com", "value": ${Math.random().toFixed(4)}},\n`;
+                if (currentSize + item.length > targetSize - 50) break;
+                content += item;
+                currentSize += item.length;
+                index++;
+            }
+            
+            content = content.slice(0, -2) + '\n'; // 移除最后的逗号
+            content += '  ]\n}';
+            
+            return content;
+        }
+        
+        // 生成CSV内容
+        function generateCSVContent(targetSize) {
+            let content = 'ID,Name,Email,Age,City,Score\n';
+            let currentSize = content.length;
+            let index = 1;
+            
+            const cities = ['Beijing', 'Shanghai', 'Guangzhou', 'Shenzhen', 'Hangzhou'];
+            
+            while (currentSize < targetSize - 100) {
+                const row = `${index},User${index},user${index}@test.com,${20 + index % 50},${cities[index % cities.length]},${Math.floor(Math.random() * 100)}\n`;
+                if (currentSize + row.length > targetSize) break;
+                content += row;
+                currentSize += row.length;
+                index++;
+            }
+            
+            return content;
+        }
+        
+        // 生成XML内容
+        function generateXMLContent(targetSize) {
+            let content = '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
+            let currentSize = content.length;
+            let index = 0;
+            
+            while (currentSize < targetSize - 200) {
+                const item = `  <item id="${index}">\n    <name>Test Item ${index}</name>\n    <value>${Math.random().toFixed(4)}</value>\n  </item>\n`;
+                if (currentSize + item.length > targetSize - 100) break;
+                content += item;
+                currentSize += item.length;
+                index++;
+            }
+            
+            content += '</root>';
+            return content;
+        }
+        
+        // 生成HTML内容
+        function generateHTMLContent(targetSize) {
+            let content = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>Test HTML File</title>
+</head>
+<body>
+    <h1>测试HTML文件</h1>
+    <div class="content">
+`;
+            let currentSize = content.length;
+            let index = 0;
+            
+            while (currentSize < targetSize - 200) {
+                const item = `        <p>这是第 ${index} 段测试文本。Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>\n`;
+                if (currentSize + item.length > targetSize - 100) break;
+                content += item;
+                currentSize += item.length;
+                index++;
+            }
+            
+            content += '    </div>\n</body>\n</html>';
+            return content;
+        }
+        
+        // 生成SQL内容
+        function generateSQLContent(targetSize) {
+            let content = '-- Test SQL Script\nCREATE TABLE IF NOT EXISTS test_users (\n  id INT PRIMARY KEY,\n  name VARCHAR(100),\n  email VARCHAR(100)\n);\n\n';
+            let currentSize = content.length;
+            let index = 1;
+            
+            while (currentSize < targetSize - 200) {
+                const insert = `INSERT INTO test_users (id, name, email) VALUES (${index}, 'User ${index}', 'user${index}@test.com');\n`;
+                if (currentSize + insert.length > targetSize - 50) break;
+                content += insert;
+                currentSize += insert.length;
+                index++;
+            }
+            
+            return content;
+        }
+        
+        // 生成LOG内容
+        function generateLogContent(targetSize) {
+            let content = '';
+            let currentSize = 0;
+            const levels = ['INFO', 'DEBUG', 'WARN', 'ERROR'];
+            const messages = [
+                'Application started successfully',
+                'Database connection established',
+                'User authentication failed',
+                'Request processing completed',
+                'Cache updated'
+            ];
+            
+            while (currentSize < targetSize) {
+                const timestamp = new Date(Date.now() - Math.random() * 86400000).toISOString();
+                const level = levels[Math.floor(Math.random() * levels.length)];
+                const message = messages[Math.floor(Math.random() * messages.length)];
+                const line = `[${timestamp}] ${level}: ${message}\n`;
+                
+                if (currentSize + line.length > targetSize) break;
+                content += line;
+                currentSize += line.length;
+            }
+            
+            return content;
+        }
+        
+        // 生成Markdown内容
+        function generateMarkdownContent(targetSize) {
+            let content = '# 测试Markdown文档\n\n## 简介\n\n这是一个自动生成的测试文档。\n\n';
+            let currentSize = content.length;
+            let section = 1;
+            
+            while (currentSize < targetSize - 200) {
+                const item = `## 章节 ${section}\n\n这是第 ${section} 个章节的内容。包含一些测试文本：\n\n- 列表项 1\n- 列表项 2\n- 列表项 3\n\n`;
+                if (currentSize + item.length > targetSize - 100) break;
+                content += item;
+                currentSize += item.length;
+                section++;
+            }
+            
+            return content;
+        }
+        
+        // 生成SVG内容
+        function generateSVGContent(targetSize) {
+            let content = '<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000">\n';
+            let currentSize = content.length;
+            let index = 0;
+            
+            while (currentSize < targetSize - 200) {
+                const x = Math.floor(Math.random() * 1000);
+                const y = Math.floor(Math.random() * 1000);
+                const r = Math.floor(Math.random() * 50) + 10;
+                const color = `rgb(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)})`;
+                const circle = `  <circle cx="${x}" cy="${y}" r="${r}" fill="${color}"/>\n`;
+                
+                if (currentSize + circle.length > targetSize - 50) break;
+                content += circle;
+                currentSize += circle.length;
+                index++;
+            }
+            
+            content += '</svg>';
+            return content;
+        }
+        
+        // 生成BMP内容（简化版，生成单色位图头部+数据）
+        function generateBMPContent(targetSize) {
+            // BMP文件头（54字节）+ 像素数据
+            const headerSize = 54;
+            const pixelDataSize = targetSize - headerSize;
+            
+            // 计算图片尺寸（假设24位色深）
+            const bytesPerPixel = 3;
+            const width = Math.floor(Math.sqrt(pixelDataSize / bytesPerPixel));
+            const height = width;
+            const actualPixelDataSize = width * height * bytesPerPixel;
+            
+            // 创建BMP文件头
+            const buffer = new ArrayBuffer(headerSize + actualPixelDataSize);
+            const view = new DataView(buffer);
+            
+            // BM标识
+            view.setUint8(0, 0x42); // 'B'
+            view.setUint8(1, 0x4D); // 'M'
+            
+            // 文件大小
+            view.setUint32(2, headerSize + actualPixelDataSize, true);
+            
+            // 保留字段
+            view.setUint32(6, 0, true);
+            
+            // 像素数据偏移
+            view.setUint32(10, headerSize, true);
+            
+            // DIB头大小
+            view.setUint32(14, 40, true);
+            
+            // 图片宽度和高度
+            view.setUint32(18, width, true);
+            view.setUint32(22, height, true);
+            
+            // 颜色平面数
+            view.setUint16(26, 1, true);
+            
+            // 位深度
+            view.setUint16(28, 24, true);
+            
+            // 压缩方式（0=不压缩）
+            view.setUint32(30, 0, true);
+            
+            // 像素数据大小
+            view.setUint32(34, actualPixelDataSize, true);
+            
+            // 填充像素数据（随机颜色）
+            const pixelArray = new Uint8Array(buffer, headerSize);
+            for (let i = 0; i < actualPixelDataSize; i++) {
+                pixelArray[i] = Math.floor(Math.random() * 256);
+            }
+            
+            return buffer;
+        }
+        
+        // 生成PNG内容（简化版，1x1像素 + 填充数据）
+        function generatePNGContent(targetSize) {
+            // PNG最小文件：8字节签名 + IHDR(25) + IDAT + IEND(12) ≈ 70字节
+            const signature = new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10]); // PNG签名
+            
+            // 计算需要的IDAT数据大小
+            const minSize = 70;
+            const idatDataSize = Math.max(100, targetSize - minSize);
+            
+            // 创建缓冲区
+            const totalSize = signature.length + 25 + 12 + idatDataSize + 12;
+            const buffer = new Uint8Array(totalSize);
+            let offset = 0;
+            
+            // 写入PNG签名
+            buffer.set(signature, offset);
+            offset += signature.length;
+            
+            // IHDR块（图像头）
+            const ihdr = new Uint8Array([
+                0, 0, 0, 13, // 长度
+                73, 72, 68, 82, // "IHDR"
+                0, 0, 0, 1, // 宽度 = 1
+                0, 0, 0, 1, // 高度 = 1
+                8, // 位深度
+                2, // 颜色类型（RGB）
+                0, 0, 0, // 压缩、过滤、交错
+                0, 0, 0, 0  // CRC（简化为0）
+            ]);
+            buffer.set(ihdr, offset);
+            offset += ihdr.length;
+            
+            // IDAT块（图像数据）
+            const idatHeader = new Uint8Array(8);
+            const view = new DataView(idatHeader.buffer);
+            view.setUint32(0, idatDataSize, false); // 长度
+            idatHeader[4] = 73; // 'I'
+            idatHeader[5] = 68; // 'D'
+            idatHeader[6] = 65; // 'A'
+            idatHeader[7] = 84; // 'T'
+            buffer.set(idatHeader, offset);
+            offset += idatHeader.length;
+            
+            // 填充随机数据
+            for (let i = 0; i < idatDataSize; i++) {
+                buffer[offset++] = Math.floor(Math.random() * 256);
+            }
+            
+            // IDAT CRC（简化为0）
+            buffer[offset++] = 0;
+            buffer[offset++] = 0;
+            buffer[offset++] = 0;
+            buffer[offset++] = 0;
+            
+            // IEND块
+            const iend = new Uint8Array([
+                0, 0, 0, 0, // 长度
+                73, 69, 78, 68, // "IEND"
+                174, 66, 96, 130 // CRC
+            ]);
+            buffer.set(iend, offset);
+            
+            return buffer.buffer;
+        }
+        
+        // 生成JPG内容（JFIF格式）
+        function generateJPGContent(targetSize) {
+            // JPG最小结构：SOI(2) + APP0(18) + ... + EOI(2)
+            const minSize = 200;
+            const dataSize = Math.max(minSize, targetSize);
+            
+            const buffer = new Uint8Array(dataSize);
+            let offset = 0;
+            
+            // SOI (Start of Image)
+            buffer[offset++] = 0xFF;
+            buffer[offset++] = 0xD8;
+            
+            // APP0 (JFIF标识)
+            buffer[offset++] = 0xFF;
+            buffer[offset++] = 0xE0;
+            buffer[offset++] = 0x00;
+            buffer[offset++] = 0x10; // 长度
+            buffer[offset++] = 0x4A; // 'J'
+            buffer[offset++] = 0x46; // 'F'
+            buffer[offset++] = 0x49; // 'I'
+            buffer[offset++] = 0x46; // 'F'
+            buffer[offset++] = 0x00; // 结束符
+            buffer[offset++] = 0x01; // 版本
+            buffer[offset++] = 0x01;
+            buffer[offset++] = 0x00; // 单位
+            buffer[offset++] = 0x00;
+            buffer[offset++] = 0x01; // X密度
+            buffer[offset++] = 0x00;
+            buffer[offset++] = 0x01; // Y密度
+            buffer[offset++] = 0x00; // 缩略图
+            buffer[offset++] = 0x00;
+            
+            // 填充数据（模拟扫描数据）
+            while (offset < dataSize - 2) {
+                buffer[offset++] = Math.floor(Math.random() * 256);
+            }
+            
+            // EOI (End of Image)
+            buffer[dataSize - 2] = 0xFF;
+            buffer[dataSize - 1] = 0xD9;
+            
+            return buffer.buffer;
+        }
+        
+        // 生成GIF内容（GIF89a格式）
+        function generateGIFContent(targetSize) {
+            const minSize = 100;
+            const dataSize = Math.max(minSize, targetSize);
+            
+            const buffer = new Uint8Array(dataSize);
+            let offset = 0;
+            
+            // GIF头部
+            const header = [71, 73, 70, 56, 57, 97]; // "GIF89a"
+            buffer.set(header, offset);
+            offset += header.length;
+            
+            // 逻辑屏幕宽度/高度
+            buffer[offset++] = 1; // 宽度低字节
+            buffer[offset++] = 0; // 宽度高字节
+            buffer[offset++] = 1; // 高度低字节
+            buffer[offset++] = 0; // 高度高字节
+            
+            // 全局颜色表
+            buffer[offset++] = 0x80; // GCT标志
+            buffer[offset++] = 0x00; // 背景色
+            buffer[offset++] = 0x00; // 像素比例
+            
+            // 颜色表（2色）
+            buffer[offset++] = 0; buffer[offset++] = 0; buffer[offset++] = 0; // 黑
+            buffer[offset++] = 255; buffer[offset++] = 255; buffer[offset++] = 255; // 白
+            
+            // 填充数据
+            while (offset < dataSize - 1) {
+                buffer[offset++] = Math.floor(Math.random() * 256);
+            }
+            
+            // GIF结束符
+            buffer[dataSize - 1] = 0x3B;
+            
+            return buffer.buffer;
+        }
+        
+        // 生成PDF内容（修复版，完整的PDF结构）
+        function generatePDFContent(targetSize) {
+            // 构建PDF对象
+            const objects = [];
+            let currentOffset = 0;
+            
+            // PDF头部
+            const header = '%PDF-1.4\n';
+            currentOffset = header.length;
+            
+            // 对象1：目录
+            const obj1Start = currentOffset;
+            const obj1 = '1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n';
+            objects.push({ id: 1, offset: obj1Start });
+            currentOffset += obj1.length;
+            
+            // 对象2：页面树
+            const obj2Start = currentOffset;
+            const obj2 = '2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n';
+            objects.push({ id: 2, offset: obj2Start });
+            currentOffset += obj2.length;
+            
+            // 对象3：页面
+            const obj3Start = currentOffset;
+            const obj3 = '3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 612 792] /Contents 5 0 R >>\nendobj\n';
+            objects.push({ id: 3, offset: obj3Start });
+            currentOffset += obj3.length;
+            
+            // 对象4：字体
+            const obj4Start = currentOffset;
+            const obj4 = '4 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\n';
+            objects.push({ id: 4, offset: obj4Start });
+            currentOffset += obj4.length;
+            
+            // 对象5：内容流
+            // 计算需要的文本量以达到目标大小
+            const currentSize = currentOffset + 200; // 预留空间
+            const remainingSize = Math.max(100, targetSize - currentSize);
+            
+            let streamContent = 'BT\n/F1 12 Tf\n50 720 Td\n15 TL\n';
+            
+            // 生成文本行
+            let textSize = 0;
+            let lineNum = 1;
+            while (textSize < remainingSize - 200) {
+                const line = `(This is test line ${lineNum} - Generated by Test File Generator) Tj T*\n`;
+                if (textSize + line.length > remainingSize - 100) break;
+                streamContent += line;
+                textSize += line.length;
+                lineNum++;
+                
+                // 每50行添加一个换页标记（如果需要）
+                if (lineNum % 50 === 0 && textSize < remainingSize - 300) {
+                    streamContent += 'ET\n';
+                    streamContent += 'BT\n/F1 12 Tf\n50 720 Td\n15 TL\n';
+                }
+            }
+            streamContent += 'ET\n';
+            
+            const obj5Start = currentOffset;
+            const obj5 = `5 0 obj\n<< /Length ${streamContent.length} >>\nstream\n${streamContent}endstream\nendobj\n`;
+            objects.push({ id: 5, offset: obj5Start });
+            currentOffset += obj5.length;
+            
+            // 构建完整PDF
+            let pdfContent = header + obj1 + obj2 + obj3 + obj4 + obj5;
+            
+            // 交叉引用表
+            const xrefOffset = pdfContent.length;
+            let xref = 'xref\n0 6\n';
+            xref += '0000000000 65535 f \n';
+            objects.forEach(obj => {
+                xref += String(obj.offset).padStart(10, '0') + ' 00000 n \n';
+            });
+            
+            // 尾部
+            const trailer = `trailer\n<< /Size 6 /Root 1 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`;
+            
+            pdfContent += xref + trailer;
+            
+            return pdfContent;
+        }
+        
+        // 生成ZIP内容（修复版，计算正确的CRC32）
+        function generateZIPContent(targetSize) {
+            const fileName = 'readme.txt';
+            const fileNameBytes = new TextEncoder().encode(fileName);
+            
+            // 生成文件内容
+            let fileContent = '=== Test ZIP Archive ===\n\n';
+            fileContent += 'This is a test ZIP file generated by Test File Generator.\n\n';
+            fileContent += 'Content:\n';
+            
+            const baseText = 'Line {num}: This is test data for ZIP archive generation. The quick brown fox jumps over the lazy dog.\n';
+            let lineNum = 1;
+            while (fileContent.length < targetSize - 200) {
+                const line = baseText.replace('{num}', lineNum);
+                if (fileContent.length + line.length > targetSize - 150) break;
+                fileContent += line;
+                lineNum++;
+            }
+            
+            const fileContentBytes = new TextEncoder().encode(fileContent);
+            
+            // 计算CRC32
+            const crc32 = calculateCRC32(fileContentBytes);
+            
+            // DOS时间和日期（2024年1月1日 12:00:00）
+            const dosTime = 0x6000; // 12:00:00
+            const dosDate = 0x5821; // 2024-01-01
+            
+            // 计算总大小
+            const localHeaderSize = 30 + fileNameBytes.length;
+            const centralDirSize = 46 + fileNameBytes.length;
+            const endRecordSize = 22;
+            const totalSize = localHeaderSize + fileContentBytes.length + centralDirSize + endRecordSize;
+            
+            const buffer = new Uint8Array(totalSize);
+            const view = new DataView(buffer.buffer);
+            let offset = 0;
+            
+            // ========== 本地文件头 ==========
+            view.setUint32(offset, 0x04034b50, true); offset += 4; // PK签名
+            view.setUint16(offset, 20, true); offset += 2; // 版本
+            view.setUint16(offset, 0, true); offset += 2; // 通用标志
+            view.setUint16(offset, 0, true); offset += 2; // 压缩方法（0=不压缩）
+            view.setUint16(offset, dosTime, true); offset += 2; // 修改时间
+            view.setUint16(offset, dosDate, true); offset += 2; // 修改日期
+            view.setUint32(offset, crc32, true); offset += 4; // CRC-32
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4; // 压缩大小
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4; // 未压缩大小
+            view.setUint16(offset, fileNameBytes.length, true); offset += 2; // 文件名长度
+            view.setUint16(offset, 0, true); offset += 2; // 额外字段长度
+            buffer.set(fileNameBytes, offset); offset += fileNameBytes.length;
+            
+            // 文件数据
+            const fileDataStart = offset;
+            buffer.set(fileContentBytes, offset);
+            offset += fileContentBytes.length;
+            
+            // ========== 中央目录记录 ==========
+            const centralDirStart = offset;
+            view.setUint32(offset, 0x02014b50, true); offset += 4; // PK签名
+            view.setUint16(offset, 20, true); offset += 2; // 创建版本
+            view.setUint16(offset, 20, true); offset += 2; // 需要版本
+            view.setUint16(offset, 0, true); offset += 2; // 通用标志
+            view.setUint16(offset, 0, true); offset += 2; // 压缩方法
+            view.setUint16(offset, dosTime, true); offset += 2; // 修改时间
+            view.setUint16(offset, dosDate, true); offset += 2; // 修改日期
+            view.setUint32(offset, crc32, true); offset += 4; // CRC-32
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4; // 压缩大小
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4; // 未压缩大小
+            view.setUint16(offset, fileNameBytes.length, true); offset += 2; // 文件名长度
+            view.setUint16(offset, 0, true); offset += 2; // 额外字段长度
+            view.setUint16(offset, 0, true); offset += 2; // 文件注释长度
+            view.setUint16(offset, 0, true); offset += 2; // 磁盘号
+            view.setUint16(offset, 0, true); offset += 2; // 内部文件属性
+            view.setUint32(offset, 0, true); offset += 4; // 外部文件属性
+            view.setUint32(offset, 0, true); offset += 4; // 本地头相对偏移
+            buffer.set(fileNameBytes, offset); offset += fileNameBytes.length;
+            
+            // ========== 中央目录结束记录 ==========
+            view.setUint32(offset, 0x06054b50, true); offset += 4; // PK签名
+            view.setUint16(offset, 0, true); offset += 2; // 当前磁盘号
+            view.setUint16(offset, 0, true); offset += 2; // 中央目录开始磁盘号
+            view.setUint16(offset, 1, true); offset += 2; // 本磁盘上的记录数
+            view.setUint16(offset, 1, true); offset += 2; // 总记录数
+            view.setUint32(offset, centralDirSize, true); offset += 4; // 中央目录大小
+            view.setUint32(offset, centralDirStart, true); offset += 4; // 中央目录偏移
+            view.setUint16(offset, 0, true); offset += 2; // 注释长度
+            
+            return buffer.buffer;
+        }
+        
+        // CRC32计算函数
+        function calculateCRC32(bytes) {
+            const crcTable = new Uint32Array(256);
+            for (let i = 0; i < 256; i++) {
+                let c = i;
+                for (let j = 0; j < 8; j++) {
+                    c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+                }
+                crcTable[i] = c;
+            }
+            
+            let crc = 0xFFFFFFFF;
+            for (let i = 0; i < bytes.length; i++) {
+                crc = crcTable[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+            }
+            return (crc ^ 0xFFFFFFFF) >>> 0;
+        }
+        
+        // 生成DOCX内容（真实的Office Open XML格式）
+        function generateDOCXContent(targetSize) {
+            // 创建必需的XML文件
+            const files = [];
+            
+            // 1. [Content_Types].xml
+            const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+            files.push({ name: '[Content_Types].xml', content: contentTypes });
+            
+            // 2. _rels/.rels
+            const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+            files.push({ name: '_rels/.rels', content: rels });
+            
+            // 3. word/document.xml（包含实际内容）
+            let documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+`;
+            
+            // 计算需要多少段落来达到目标大小
+            const baseSize = contentTypes.length + rels.length + documentXml.length + 100;
+            const remainingSize = Math.max(100, targetSize - baseSize);
+            let paraNum = 1;
+            let contentSize = 0;
+            
+            while (contentSize < remainingSize - 200) {
+                const para = `    <w:p><w:r><w:t>这是测试Word文档的第 ${paraNum} 段。由测试文件生成器创建。This is paragraph ${paraNum} in the test Word document. Generated by Test File Generator. Lorem ipsum dolor sit amet.</w:t></w:r></w:p>\n`;
+                if (contentSize + para.length > remainingSize - 100) break;
+                documentXml += para;
+                contentSize += para.length;
+                paraNum++;
+            }
+            
+            documentXml += `  </w:body>
+</w:document>`;
+            files.push({ name: 'word/document.xml', content: documentXml });
+            
+            return createMultiFileZIP(files);
+        }
+        
+        // 生成XLSX内容（真实的Excel格式）
+        function generateXLSXContent(targetSize) {
+            const files = [];
+            
+            // 1. [Content_Types].xml
+            const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+  <Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+  <Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+  <Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/>
+</Types>`;
+            files.push({ name: '[Content_Types].xml', content: contentTypes });
+            
+            // 2. _rels/.rels
+            const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`;
+            files.push({ name: '_rels/.rels', content: rels });
+            
+            // 3. xl/workbook.xml
+            const workbook = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="Sheet1" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>`;
+            files.push({ name: 'xl/workbook.xml', content: workbook });
+            
+            // 4. xl/_rels/workbook.xml.rels
+            const workbookRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings" Target="sharedStrings.xml"/>
+</Relationships>`;
+            files.push({ name: 'xl/_rels/workbook.xml.rels', content: workbookRels });
+            
+            // 5. xl/styles.xml
+            const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"/>`;
+            files.push({ name: 'xl/styles.xml', content: styles });
+            
+            // 6. xl/sharedStrings.xml（包含所有文本）
+            let sharedStrings = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" count="1" uniqueCount="1">
+  <si><t>测试数据 Test Data</t></si>
+</sst>`;
+            files.push({ name: 'xl/sharedStrings.xml', content: sharedStrings });
+            
+            // 7. xl/worksheets/sheet1.xml（工作表数据）
+            let worksheet = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <sheetData>
+`;
+            
+            // 计算需要多少行来达到目标大小
+            const baseSize = contentTypes.length + rels.length + workbook.length + workbookRels.length + styles.length + sharedStrings.length + worksheet.length + 200;
+            const remainingSize = Math.max(100, targetSize - baseSize);
+            let rowNum = 1;
+            let contentSize = 0;
+            
+            while (contentSize < remainingSize - 300) {
+                const row = `    <row r="${rowNum}"><c r="A${rowNum}" t="s"><v>0</v></c><c r="B${rowNum}"><v>${rowNum}</v></c><c r="C${rowNum}"><v>${rowNum * 100}</v></c></row>\n`;
+                if (contentSize + row.length > remainingSize - 100) break;
+                worksheet += row;
+                contentSize += row.length;
+                rowNum++;
+            }
+            
+            worksheet += `  </sheetData>
+</worksheet>`;
+            files.push({ name: 'xl/worksheets/sheet1.xml', content: worksheet });
+            
+            return createMultiFileZIP(files);
+        }
+        
+        // 生成PPTX内容（真实的PowerPoint格式）
+        function generatePPTXContent(targetSize) {
+            const files = [];
+            
+            // 1. [Content_Types].xml
+            const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>
+  <Override PartName="/ppt/slides/slide1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>
+  <Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>
+  <Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>
+</Types>`;
+            files.push({ name: '[Content_Types].xml', content: contentTypes });
+            
+            // 2. _rels/.rels
+            const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="ppt/presentation.xml"/>
+</Relationships>`;
+            files.push({ name: '_rels/.rels', content: rels });
+            
+            // 3. ppt/presentation.xml
+            const presentation = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:presentation xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <p:sldIdLst>
+    <p:sldId id="256" r:id="rId1"/>
+  </p:sldIdLst>
+  <p:sldSz cx="9144000" cy="6858000"/>
+</p:presentation>`;
+            files.push({ name: 'ppt/presentation.xml', content: presentation });
+            
+            // 4. ppt/_rels/presentation.xml.rels
+            const presentationRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide1.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="slideMasters/slideMaster1.xml"/>
+</Relationships>`;
+            files.push({ name: 'ppt/_rels/presentation.xml.rels', content: presentationRels });
+            
+            // 5. ppt/slides/slide1.xml（幻灯片内容）
+            let slide = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <p:cSld>
+    <p:spTree>
+      <p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>
+      <p:grpSpPr/>
+      <p:sp>
+        <p:nvSpPr><p:cNvPr id="2" name="Title"/><p:cNvSpPr><a:spLocks noGrp="1"/></p:cNvSpPr><p:nvPr/></p:nvSpPr>
+        <p:spPr/>
+        <p:txBody>
+          <a:bodyPr/>
+          <a:lstStyle/>
+          <a:p>
+            <a:r><a:t>测试演示文稿 Test Presentation</a:t></a:r>
+          </a:p>
+`;
+            
+            // 添加更多段落以达到目标大小
+            const baseSize = contentTypes.length + rels.length + presentation.length + presentationRels.length + slide.length + 300;
+            const remainingSize = Math.max(100, targetSize - baseSize);
+            let paraNum = 1;
+            let contentSize = 0;
+            
+            while (contentSize < remainingSize - 500) {
+                const para = `          <a:p><a:r><a:t>这是幻灯片内容第 ${paraNum} 行。Slide content line ${paraNum}. Generated by Test File Generator.</a:t></a:r></a:p>\n`;
+                if (contentSize + para.length > remainingSize - 200) break;
+                slide += para;
+                contentSize += para.length;
+                paraNum++;
+            }
+            
+            slide += `        </p:txBody>
+      </p:sp>
+    </p:spTree>
+  </p:cSld>
+</p:sld>`;
+            files.push({ name: 'ppt/slides/slide1.xml', content: slide });
+            
+            // 6. ppt/slides/_rels/slide1.xml.rels
+            const slideRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>
+</Relationships>`;
+            files.push({ name: 'ppt/slides/_rels/slide1.xml.rels', content: slideRels });
+            
+            // 7. ppt/slideLayouts/slideLayout1.xml
+            const slideLayout = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sldLayout xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/></p:spTree></p:cSld>
+</p:sldLayout>`;
+            files.push({ name: 'ppt/slideLayouts/slideLayout1.xml', content: slideLayout });
+            
+            // 8. ppt/slideLayouts/_rels/slideLayout1.xml.rels
+            const slideLayoutRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideMaster" Target="../slideMasters/slideMaster1.xml"/>
+</Relationships>`;
+            files.push({ name: 'ppt/slideLayouts/_rels/slideLayout1.xml.rels', content: slideLayoutRels });
+            
+            // 9. ppt/slideMasters/slideMaster1.xml
+            const slideMaster = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sldMaster xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">
+  <p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr><p:grpSpPr/></p:spTree></p:cSld>
+  <p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/></p:sldLayoutIdLst>
+</p:sldMaster>`;
+            files.push({ name: 'ppt/slideMasters/slideMaster1.xml', content: slideMaster });
+            
+            return createMultiFileZIP(files);
+        }
+        
+        // 创建包含多个文件的ZIP包（用于Office文档）
+        function createMultiFileZIP(files) {
+            // 计算总大小
+            let totalSize = 0;
+            const fileData = [];
+            
+            // 准备每个文件的数据
+            for (const file of files) {
+                const nameBytes = new TextEncoder().encode(file.name);
+                const contentBytes = new TextEncoder().encode(file.content);
+                const crc32 = calculateCRC32(contentBytes);
+                
+                fileData.push({
+                    name: file.name,
+                    nameBytes: nameBytes,
+                    contentBytes: contentBytes,
+                    crc32: crc32
+                });
+                
+                // 本地文件头(30) + 文件名长度 + 文件内容长度
+                totalSize += 30 + nameBytes.length + contentBytes.length;
+                // 中央目录记录(46) + 文件名长度
+                totalSize += 46 + nameBytes.length;
+            }
+            
+            // 结束记录(22)
+            totalSize += 22;
+            
+            const buffer = new Uint8Array(totalSize);
+            const view = new DataView(buffer.buffer);
+            let offset = 0;
+            const localHeaderOffsets = [];
+            
+            const dosTime = 0x6000;
+            const dosDate = 0x5821;
+            
+            // 写入所有本地文件头和文件数据
+            for (const file of fileData) {
+                localHeaderOffsets.push(offset);
+                
+                // 本地文件头签名
+                view.setUint32(offset, 0x04034b50, true); offset += 4;
+                // 版本
+                view.setUint16(offset, 20, true); offset += 2;
+                // 通用位标志
+                view.setUint16(offset, 0, true); offset += 2;
+                // 压缩方法（0=无压缩）
+                view.setUint16(offset, 0, true); offset += 2;
+                // 修改时间
+                view.setUint16(offset, dosTime, true); offset += 2;
+                // 修改日期
+                view.setUint16(offset, dosDate, true); offset += 2;
+                // CRC32
+                view.setUint32(offset, file.crc32, true); offset += 4;
+                // 压缩后大小
+                view.setUint32(offset, file.contentBytes.length, true); offset += 4;
+                // 未压缩大小
+                view.setUint32(offset, file.contentBytes.length, true); offset += 4;
+                // 文件名长度
+                view.setUint16(offset, file.nameBytes.length, true); offset += 2;
+                // 扩展字段长度
+                view.setUint16(offset, 0, true); offset += 2;
+                // 文件名
+                buffer.set(file.nameBytes, offset); offset += file.nameBytes.length;
+                // 文件数据
+                buffer.set(file.contentBytes, offset); offset += file.contentBytes.length;
+            }
+            
+            // 中央目录开始位置
+            const centralDirStart = offset;
+            
+            // 写入所有中央目录记录
+            for (let i = 0; i < fileData.length; i++) {
+                const file = fileData[i];
+                
+                // 中央目录文件头签名
+                view.setUint32(offset, 0x02014b50, true); offset += 4;
+                // 版本
+                view.setUint16(offset, 20, true); offset += 2;
+                // 需要的版本
+                view.setUint16(offset, 20, true); offset += 2;
+                // 通用位标志
+                view.setUint16(offset, 0, true); offset += 2;
+                // 压缩方法
+                view.setUint16(offset, 0, true); offset += 2;
+                // 修改时间
+                view.setUint16(offset, dosTime, true); offset += 2;
+                // 修改日期
+                view.setUint16(offset, dosDate, true); offset += 2;
+                // CRC32
+                view.setUint32(offset, file.crc32, true); offset += 4;
+                // 压缩后大小
+                view.setUint32(offset, file.contentBytes.length, true); offset += 4;
+                // 未压缩大小
+                view.setUint32(offset, file.contentBytes.length, true); offset += 4;
+                // 文件名长度
+                view.setUint16(offset, file.nameBytes.length, true); offset += 2;
+                // 扩展字段长度
+                view.setUint16(offset, 0, true); offset += 2;
+                // 文件注释长度
+                view.setUint16(offset, 0, true); offset += 2;
+                // 磁盘号
+                view.setUint16(offset, 0, true); offset += 2;
+                // 内部文件属性
+                view.setUint16(offset, 0, true); offset += 2;
+                // 外部文件属性
+                view.setUint32(offset, 0, true); offset += 4;
+                // 本地文件头偏移
+                view.setUint32(offset, localHeaderOffsets[i], true); offset += 4;
+                // 文件名
+                buffer.set(file.nameBytes, offset); offset += file.nameBytes.length;
+            }
+            
+            // 中央目录大小
+            const centralDirSize = offset - centralDirStart;
+            
+            // 写入结束记录
+            // 结束记录签名
+            view.setUint32(offset, 0x06054b50, true); offset += 4;
+            // 当前磁盘号
+            view.setUint16(offset, 0, true); offset += 2;
+            // 中央目录开始磁盘号
+            view.setUint16(offset, 0, true); offset += 2;
+            // 当前磁盘上的中央目录记录数
+            view.setUint16(offset, fileData.length, true); offset += 2;
+            // 中央目录记录总数
+            view.setUint16(offset, fileData.length, true); offset += 2;
+            // 中央目录大小
+            view.setUint32(offset, centralDirSize, true); offset += 4;
+            // 中央目录偏移
+            view.setUint32(offset, centralDirStart, true); offset += 4;
+            // ZIP文件注释长度
+            view.setUint16(offset, 0, true); offset += 2;
+            
+            return buffer.buffer;
+        }
+        
+        // 生成自定义内容的ZIP（用于Office文档）
+        function generateCustomZIP(fileName, baseContent, targetSize) {
+            const fileNameBytes = new TextEncoder().encode(fileName);
+            
+            // 扩展内容以达到目标大小
+            let fileContent = baseContent;
+            let lineNum = 1;
+            while (fileContent.length < targetSize - 200) {
+                const line = `Line ${lineNum}: Additional test data for file size padding. Lorem ipsum dolor sit amet.\n`;
+                if (fileContent.length + line.length > targetSize - 150) break;
+                fileContent += line;
+                lineNum++;
+            }
+            
+            const fileContentBytes = new TextEncoder().encode(fileContent);
+            const crc32 = calculateCRC32(fileContentBytes);
+            
+            const dosTime = 0x6000;
+            const dosDate = 0x5821;
+            
+            const localHeaderSize = 30 + fileNameBytes.length;
+            const centralDirSize = 46 + fileNameBytes.length;
+            const totalSize = localHeaderSize + fileContentBytes.length + centralDirSize + 22;
+            
+            const buffer = new Uint8Array(totalSize);
+            const view = new DataView(buffer.buffer);
+            let offset = 0;
+            
+            // 本地文件头
+            view.setUint32(offset, 0x04034b50, true); offset += 4;
+            view.setUint16(offset, 20, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, dosTime, true); offset += 2;
+            view.setUint16(offset, dosDate, true); offset += 2;
+            view.setUint32(offset, crc32, true); offset += 4;
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4;
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4;
+            view.setUint16(offset, fileNameBytes.length, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            buffer.set(fileNameBytes, offset); offset += fileNameBytes.length;
+            
+            // 文件数据
+            buffer.set(fileContentBytes, offset);
+            offset += fileContentBytes.length;
+            
+            // 中央目录
+            const centralDirStart = offset;
+            view.setUint32(offset, 0x02014b50, true); offset += 4;
+            view.setUint16(offset, 20, true); offset += 2;
+            view.setUint16(offset, 20, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, dosTime, true); offset += 2;
+            view.setUint16(offset, dosDate, true); offset += 2;
+            view.setUint32(offset, crc32, true); offset += 4;
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4;
+            view.setUint32(offset, fileContentBytes.length, true); offset += 4;
+            view.setUint16(offset, fileNameBytes.length, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint32(offset, 0, true); offset += 4;
+            view.setUint32(offset, 0, true); offset += 4;
+            buffer.set(fileNameBytes, offset); offset += fileNameBytes.length;
+            
+            // 结束记录
+            view.setUint32(offset, 0x06054b50, true); offset += 4;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 0, true); offset += 2;
+            view.setUint16(offset, 1, true); offset += 2;
+            view.setUint16(offset, 1, true); offset += 2;
+            view.setUint32(offset, centralDirSize, true); offset += 4;
+            view.setUint32(offset, centralDirStart, true); offset += 4;
+            view.setUint16(offset, 0, true); offset += 2;
+            
+            return buffer.buffer;
+        }
+        
+        // 生成ZIP内容（最小ZIP结构）
+        function generateZIPContent(targetSize) {
+            // ZIP文件结构：本地文件头 + 文件数据 + 中央目录 + 结束记录
+            const fileName = 'test.txt';
+            const fileNameBytes = new TextEncoder().encode(fileName);
+            const fileContent = 'This is a test file inside the ZIP archive.\n'.repeat(
+                Math.max(1, Math.floor(targetSize / 50))
+            );
+            const fileContentBytes = new TextEncoder().encode(fileContent);
+            
+            // 计算总大小
+            const localHeaderSize = 30 + fileNameBytes.length;
+            const centralDirSize = 46 + fileNameBytes.length;
+            const endRecordSize = 22;
+            const totalSize = localHeaderSize + fileContentBytes.length + centralDirSize + endRecordSize;
+            
+            const buffer = new Uint8Array(totalSize);
+            let offset = 0;
+            
+            // 本地文件头
+            const localHeader = new DataView(buffer.buffer);
+            localHeader.setUint32(offset, 0x04034b50, true); offset += 4; // 签名
+            localHeader.setUint16(offset, 20, true); offset += 2; // 版本
+            localHeader.setUint16(offset, 0, true); offset += 2; // 标志
+            localHeader.setUint16(offset, 0, true); offset += 2; // 压缩方法（无压缩）
+            localHeader.setUint16(offset, 0, true); offset += 2; // 修改时间
+            localHeader.setUint16(offset, 0, true); offset += 2; // 修改日期
+            localHeader.setUint32(offset, 0, true); offset += 4; // CRC-32
+            localHeader.setUint32(offset, fileContentBytes.length, true); offset += 4; // 压缩大小
+            localHeader.setUint32(offset, fileContentBytes.length, true); offset += 4; // 未压缩大小
+            localHeader.setUint16(offset, fileNameBytes.length, true); offset += 2; // 文件名长度
+            localHeader.setUint16(offset, 0, true); offset += 2; // 额外字段长度
+            buffer.set(fileNameBytes, offset); offset += fileNameBytes.length;
+            
+            // 文件数据
+            buffer.set(fileContentBytes, offset);
+            const fileDataOffset = offset;
+            offset += fileContentBytes.length;
+            
+            // 中央目录
+            const centralDirOffset = offset;
+            const centralDir = new DataView(buffer.buffer, offset);
+            centralDir.setUint32(0, 0x02014b50, true); offset += 4; // 签名
+            centralDir.setUint16(4, 20, true); offset += 2; // 创建版本
+            centralDir.setUint16(6, 20, true); offset += 2; // 需要版本
+            centralDir.setUint16(8, 0, true); offset += 2; // 标志
+            centralDir.setUint16(10, 0, true); offset += 2; // 压缩方法
+            centralDir.setUint16(12, 0, true); offset += 2; // 修改时间
+            centralDir.setUint16(14, 0, true); offset += 2; // 修改日期
+            centralDir.setUint32(16, 0, true); offset += 4; // CRC-32
+            centralDir.setUint32(20, fileContentBytes.length, true); offset += 4; // 压缩大小
+            centralDir.setUint32(24, fileContentBytes.length, true); offset += 4; // 未压缩大小
+            centralDir.setUint16(28, fileNameBytes.length, true); offset += 2; // 文件名长度
+            centralDir.setUint16(30, 0, true); offset += 2; // 额外字段长度
+            centralDir.setUint16(32, 0, true); offset += 2; // 文件注释长度
+            centralDir.setUint16(34, 0, true); offset += 2; // 磁盘号
+            centralDir.setUint16(36, 0, true); offset += 2; // 内部属性
+            centralDir.setUint32(38, 0, true); offset += 4; // 外部属性
+            centralDir.setUint32(42, 0, true); offset += 4; // 本地头偏移
+            buffer.set(fileNameBytes, offset); offset += fileNameBytes.length;
+            
+            // 结束记录
+            const endRecord = new DataView(buffer.buffer, offset);
+            endRecord.setUint32(0, 0x06054b50, true); offset += 4; // 签名
+            endRecord.setUint16(4, 0, true); offset += 2; // 磁盘号
+            endRecord.setUint16(6, 0, true); offset += 2; // 中央目录开始磁盘号
+            endRecord.setUint16(8, 1, true); offset += 2; // 本磁盘记录数
+            endRecord.setUint16(10, 1, true); offset += 2; // 总记录数
+            endRecord.setUint32(12, centralDirSize, true); offset += 4; // 中央目录大小
+            endRecord.setUint32(16, centralDirOffset, true); offset += 4; // 中央目录偏移
+            endRecord.setUint16(20, 0, true); offset += 2; // 注释长度
+            
+            return buffer.buffer;
+        }
+        
+        // 生成基础内容
+        function generateBaseContent(sizeInBytes, contentType) {
+            if (contentType === 'zeros') {
+                // 全零数据
+                return '\0'.repeat(sizeInBytes);
+            }
+            
+            let content = '';
+            
+            switch(contentType) {
+                case 'random':
+                    // 随机字符
+                    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789 \n';
+                    for (let i = 0; i < sizeInBytes; i++) {
+                        content += charset[Math.floor(Math.random() * charset.length)];
+                    }
+                    break;
+                    
+                case 'repeated':
+                    // 重复文本
+                    const repeatedText = 'This is a test file generated by Test Tools. ';
+                    const repeatCount = Math.ceil(sizeInBytes / repeatedText.length);
+                    content = repeatedText.repeat(repeatCount).substring(0, sizeInBytes);
+                    break;
+                    
+                case 'numbers':
+                    // 数字序列
+                    let counter = 0;
+                    while (content.length < sizeInBytes) {
+                        const line = `${counter}\n`;
+                        if (content.length + line.length <= sizeInBytes) {
+                            content += line;
+                        } else {
+                            content += line.substring(0, sizeInBytes - content.length);
+                        }
+                        counter++;
+                    }
+                    break;
+            }
+            
+            return content;
+        }
+        
+        // 获取文件头部（用于结构化大文件）
+        function getFileHeader(format) {
+            switch(format) {
+                case 'json': return '{\n  "data": [\n';
+                case 'xml': return '<?xml version="1.0" encoding="UTF-8"?>\n<root>\n';
+                case 'html': return '<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Test</title></head>\n<body>\n';
+                default: return '';
+            }
+        }
+        
+        // 获取文件尾部（用于结构化大文件）
+        function getFileFooter(format) {
+            switch(format) {
+                case 'json': return '  ]\n}';
+                case 'xml': return '</root>';
+                case 'html': return '</body>\n</html>';
+                default: return '';
+            }
+        }
+
+        // 下载Blob
+        function downloadBlob(blob, fileName, fileExt) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `${fileName}.${fileExt}`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+
+        // 显示生成结果
+        function showGenerationResult(actualSize, fileName, fileExt, format, contentType, generationTime, resultElement) {
+            const sizeStr = formatFileSize(actualSize);
+            const formatName = FILE_FORMATS[format]?.name || '未知格式';
+            const contentTypeName = getContentTypeName(contentType);
+            
+            resultElement.innerHTML = `
+                <strong>✅ 文件生成成功！</strong><br><br>
+                <strong>📄 文件名：</strong>${fileName}.${fileExt}<br>
+                <strong>📋 文件格式：</strong>${formatName}<br>
+                <strong>📊 文件大小：</strong>${sizeStr}<br>
+                <strong>🔢 精确字节数：</strong>${actualSize.toLocaleString()} 字节<br>
+                <strong>📝 内容类型：</strong>${contentTypeName}<br>
+                <strong>⏱️ 生成耗时：</strong>${generationTime.toFixed(2)} 秒<br>
+                <strong>⚡ 生成速度：</strong>${formatFileSize(actualSize / generationTime)}/s<br><br>
+                <em style="color: #28a745;">文件已开始下载...</em>
+            `;
+            showToast('文件生成成功！');
+        }
+        
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes < 1024) {
+                return bytes.toFixed(0) + ' B';
+            } else if (bytes < 1024 * 1024) {
+                return (bytes / 1024).toFixed(2) + ' KB';
+            } else if (bytes < 1024 * 1024 * 1024) {
+                return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+            } else {
+                return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+            }
+        }
+        
+        // 获取内容类型名称
+        function getContentTypeName(contentType) {
+            switch(contentType) {
+                case 'random': return '随机字符';
+                case 'repeated': return '重复文本';
+                case 'numbers': return '数字序列';
+                case 'structured': return '结构化数据';
+                case 'zeros': return '全零数据';
+                default: return '未知';
+            }
+        }
+        
+        // 加载示例
+        function loadFileGenExample() {
+            document.getElementById('fileFormat').value = 'json';
+            document.getElementById('fileSize').value = '1';
+            document.getElementById('sizeUnit').value = 'MB';
+            document.getElementById('fileName').value = 'test_data';
+            document.querySelector('input[value="structured"]').checked = true;
+            updateFileFormatUI();
+        }
+
+        // ========== 正则表达式测试器 ==========
+        // 测试正则匹配
+        function testRegex() {
+            const pattern = document.getElementById('regexPattern').value;
+            const text = document.getElementById('regexTestText').value;
+            const result = document.getElementById('regexResult');
+            const error = document.getElementById('regexError');
+            
+            error.textContent = '';
+            document.getElementById('regexReplaceGroup').style.display = 'none';
+            
+            if (!pattern) {
+                error.textContent = '请输入正则表达式';
+                return;
+            }
+            
+            try {
+                const flags = getRegexFlags();
+                const regex = new RegExp(pattern, flags);
+                const matches = text.match(regex);
+                
+                if (matches && matches.length > 0) {
+                    let output = `✅ 找到 ${matches.length} 个匹配项：\n\n`;
+                    matches.forEach((match, index) => {
+                        output += `[${index + 1}] ${match}\n`;
+                    });
+                    
+                    // 显示匹配位置
+                    output += '\n📍 匹配位置高亮：\n';
+                    let highlightedText = text;
+                    let offset = 0;
+                    const globalRegex = new RegExp(pattern, flags);
+                    let match;
+                    const positions = [];
+                    
+                    while ((match = globalRegex.exec(text)) !== null) {
+                        positions.push({
+                            index: match.index,
+                            length: match[0].length,
+                            text: match[0]
+                        });
+                        if (!flags.includes('g')) break;
+                    }
+                    
+                    // 从后往前替换，避免位置偏移
+                    for (let i = positions.length - 1; i >= 0; i--) {
+                        const pos = positions[i];
+                        highlightedText = 
+                            highlightedText.substring(0, pos.index) + 
+                            '【' + pos.text + '】' + 
+                            highlightedText.substring(pos.index + pos.length);
+                    }
+                    
+                    output += highlightedText;
+                    result.textContent = output;
+                } else {
+                    result.textContent = '❌ 未找到匹配项';
+                }
+            } catch (e) {
+                error.textContent = '❌ 正则表达式错误：' + e.message;
+                result.textContent = '请修正正则表达式';
+            }
+        }
+        
+        // 替换
+        function replaceWithRegex() {
+            const pattern = document.getElementById('regexPattern').value;
+            const text = document.getElementById('regexTestText').value;
+            const replaceGroup = document.getElementById('regexReplaceGroup');
+            const result = document.getElementById('regexResult');
+            const error = document.getElementById('regexError');
+            
+            error.textContent = '';
+            
+            if (!pattern) {
+                error.textContent = '请输入正则表达式';
+                return;
+            }
+            
+            // 显示替换输入框
+            replaceGroup.style.display = 'block';
+            const replaceText = document.getElementById('regexReplaceText').value;
+            
+            try {
+                const flags = getRegexFlags();
+                const regex = new RegExp(pattern, flags);
+                const replaced = text.replace(regex, replaceText);
+                
+                result.textContent = '✅ 替换后的文本：\n\n' + replaced;
+            } catch (e) {
+                error.textContent = '❌ 正则表达式错误：' + e.message;
+                result.textContent = '请修正正则表达式';
+            }
+        }
+        
+        // 提取匹配项
+        function extractWithRegex() {
+            const pattern = document.getElementById('regexPattern').value;
+            const text = document.getElementById('regexTestText').value;
+            const result = document.getElementById('regexResult');
+            const error = document.getElementById('regexError');
+            
+            error.textContent = '';
+            document.getElementById('regexReplaceGroup').style.display = 'none';
+            
+            if (!pattern) {
+                error.textContent = '请输入正则表达式';
+                return;
+            }
+            
+            try {
+                const flags = getRegexFlags();
+                const regex = new RegExp(pattern, flags);
+                const matches = [];
+                let match;
+                
+                if (flags.includes('g')) {
+                    while ((match = regex.exec(text)) !== null) {
+                        matches.push(match[0]);
+                    }
+                } else {
+                    match = regex.exec(text);
+                    if (match) matches.push(match[0]);
+                }
+                
+                if (matches.length > 0) {
+                    result.textContent = '✅ 提取的匹配项（每行一个）：\n\n' + matches.join('\n');
+                } else {
+                    result.textContent = '❌ 未找到匹配项';
+                }
+            } catch (e) {
+                error.textContent = '❌ 正则表达式错误：' + e.message;
+                result.textContent = '请修正正则表达式';
+            }
+        }
+        
+        // 获取正则标志
+        function getRegexFlags() {
+            let flags = '';
+            if (document.getElementById('regexGlobal').checked) flags += 'g';
+            if (document.getElementById('regexMultiline').checked) flags += 'm';
+            if (document.getElementById('regexIgnoreCase').checked) flags += 'i';
+            return flags;
+        }
+        
+        // 加载示例
+        function loadRegexExample() {
+            document.getElementById('regexPattern').value = '\\d{3}-\\d{4}-\\d{4}';
+            document.getElementById('regexTestText').value = '联系电话：010-1234-5678\n手机号码：138-8888-9999\n固定电话：021-5678-1234';
+            document.getElementById('regexGlobal').checked = true;
+            document.getElementById('regexMultiline').checked = false;
+            document.getElementById('regexIgnoreCase').checked = false;
+            document.getElementById('regexReplaceGroup').style.display = 'none';
+            document.getElementById('regexResult').textContent = '输入正则表达式和测试文本后点击测试';
+            document.getElementById('regexError').textContent = '';
+        }
+        
+        // 清空
+        function clearRegex() {
+            document.getElementById('regexPattern').value = '';
+            document.getElementById('regexTestText').value = '';
+            document.getElementById('regexReplaceText').value = '';
+            document.getElementById('regexGlobal').checked = true;
+            document.getElementById('regexMultiline').checked = false;
+            document.getElementById('regexIgnoreCase').checked = false;
+            document.getElementById('regexReplaceGroup').style.display = 'none';
+            document.getElementById('regexResult').textContent = '输入正则表达式和测试文本后点击测试';
+            document.getElementById('regexError').textContent = '';
+        }
+
+        // ========== 字符数量统计 ==========
+        // 统计字符
+        function countCharacters() {
+            const text = document.getElementById('charCountText').value;
+            
+            // 字符总数
+            const totalChars = text.length;
+            
+            // 字符数（不含空格）
+            const charsNoSpace = text.replace(/\s/g, '').length;
+            
+            // 中文字符数（包括中文标点）
+            const chineseChars = (text.match(/[\u4e00-\u9fa5\u3000-\u303f\uff00-\uffef]/g) || []).length;
+            
+            // 英文字母数
+            const englishChars = (text.match(/[a-zA-Z]/g) || []).length;
+            
+            // 数字字符数
+            const digitChars = (text.match(/\d/g) || []).length;
+            
+            // 标点符号数（包括中英文标点）
+            const punctuationChars = (text.match(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~`！@#￥%……&*（）——+【】{}；'：""、《》？，。]/g) || []).length;
+            
+            // 空格数（包括制表符、换行符）
+            const spaceChars = (text.match(/\s/g) || []).length;
+            
+            // 行数
+            const lineCount = text.split('\n').length;
+            
+            // 单词数（以空格分隔）
+            const words = text.trim().split(/\s+/);
+            const wordCount = text.trim() === '' ? 0 : words.length;
+            
+            // 段落数（以空行分隔）
+            const paragraphs = text.split(/\n\s*\n/).filter(p => p.trim() !== '');
+            const paragraphCount = paragraphs.length;
+            
+            // 更新显示
+            document.getElementById('totalChars').textContent = totalChars;
+            document.getElementById('charsNoSpace').textContent = charsNoSpace;
+            document.getElementById('chineseChars').textContent = chineseChars;
+            document.getElementById('englishChars').textContent = englishChars;
+            document.getElementById('digitChars').textContent = digitChars;
+            document.getElementById('punctuationChars').textContent = punctuationChars;
+            document.getElementById('spaceChars').textContent = spaceChars;
+            document.getElementById('lineCount').textContent = lineCount;
+            document.getElementById('wordCount').textContent = wordCount;
+            document.getElementById('paragraphCount').textContent = paragraphCount;
+        }
+        
+        // 加载示例
+        function loadCharCountExample() {
+            const exampleText = `这是一个字符统计示例文本。
+It contains both Chinese and English characters.
+
+这个工具可以统计：
+1. 总字符数
+2. 中文字符数
+3. 英文字母数
+4. 数字：12345
+5. 标点符号等
+
+Try it yourself! 试试看！`;
+            
+            document.getElementById('charCountText').value = exampleText;
+            countCharacters();
+        }
+        
+        // 清空
+        function clearCharCount() {
+            document.getElementById('charCountText').value = '';
+            countCharacters();
+        }
+    </script>
+</body>
+</html>
